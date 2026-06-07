@@ -46,7 +46,7 @@ export const translations: Translations = {
       clear: 'Effacer',
     },
     footer: {
-      tagline: 'L'encyclopédie vivante de la culture haïtienne — musique, danse, cinéma, arts visuels, théâtre, gastronomie et édition.',
+      tagline: "L'encyclopédie vivante de la culture haïtienne — musique, danse, cinéma, arts visuels, théâtre, gastronomie et édition.",
       rights: 'Tous droits réservés.',
       made_with: 'Fait avec ♥ pour Haïti',
     },
