@@ -55,6 +55,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Créer un simple token
+    if (!user) {
+      return NextResponse.json({ error: 'Utilisateur introuvable' }, { status: 404 })
+    }
     const token = Buffer.from(`${user.id}:${Date.now()}`).toString('base64')
 
     const response = NextResponse.json({
