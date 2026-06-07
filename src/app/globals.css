@@ -1,0 +1,229 @@
+/* src/app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Variables CSS ─────────────────────────────────────── */
+:root {
+  --font-playfair: 'Playfair Display', Georgia, serif;
+  --font-dm-sans:  'DM Sans', system-ui, sans-serif;
+  --font-fira-code:'Fira Code', monospace;
+
+  /* Palette */
+  --rouge:      #C1001F;
+  --rouge-dark: #8B0015;
+  --bleu:       #00235B;
+  --bleu-mid:   #003F8A;
+  --or:         #D4A017;
+  --or-light:   #F0C040;
+  --noir:       #0A0A0F;
+  --creme:      #FAF6EE;
+  --creme-dark: #F0E8D8;
+
+  /* Sémantique */
+  --bg:         var(--creme);
+  --bg-card:    #FFFFFF;
+  --text:       #1A1A24;
+  --text-soft:  #5A5A6E;
+  --text-muted: #9090A8;
+  --border:     rgba(0,0,0,0.08);
+  --border-mid: rgba(0,0,0,0.14);
+}
+
+/* ── Scrollbar custom ──────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--rouge); }
+
+/* ── Typographie ───────────────────────────────────────── */
+@layer base {
+  html { scroll-behavior: smooth; }
+
+  body {
+    @apply bg-brand-creme text-[#1A1A24];
+    font-family: var(--font-dm-sans);
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-playfair);
+    @apply font-bold tracking-tight;
+  }
+
+  h1 { @apply text-4xl md:text-5xl lg:text-6xl leading-[1.1]; }
+  h2 { @apply text-3xl md:text-4xl leading-[1.15]; }
+  h3 { @apply text-xl md:text-2xl leading-[1.2]; }
+
+  p  { @apply leading-relaxed text-[#3A3A50]; }
+
+  a  { @apply transition-colors duration-200; }
+}
+
+/* ── Composants ────────────────────────────────────────── */
+@layer components {
+
+  /* Carte culturelle */
+  .card {
+    @apply bg-white rounded-2xl shadow-card border border-black/[0.06]
+           transition-all duration-300 overflow-hidden;
+  }
+  .card:hover {
+    @apply shadow-card-hover -translate-y-1;
+  }
+
+  /* Badge discipline */
+  .badge-disc {
+    @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase;
+  }
+
+  /* Bouton primaire */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-6 py-3 rounded-xl
+           bg-brand-rouge text-white font-semibold text-sm
+           hover:bg-brand-rouge-dark transition-colors duration-200
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-rouge;
+  }
+
+  /* Bouton secondaire */
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 px-6 py-3 rounded-xl
+           bg-white text-brand-bleu font-semibold text-sm border border-brand-bleu/20
+           hover:border-brand-bleu/50 hover:bg-brand-bleu/5 transition-all duration-200;
+  }
+
+  /* Bouton ghost */
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg
+           text-[#5A5A6E] font-medium text-sm
+           hover:bg-black/5 transition-colors duration-200;
+  }
+
+  /* Input de recherche */
+  .search-input {
+    @apply w-full bg-white rounded-2xl border border-black/10
+           px-5 py-4 pl-14 text-base text-[#1A1A24]
+           placeholder:text-[#9090A8]
+           focus:outline-none focus:ring-2 focus:ring-brand-rouge/30 focus:border-brand-rouge/40
+           transition-all duration-200;
+  }
+
+  /* Select filter */
+  .filter-select {
+    @apply bg-white rounded-xl border border-black/10 px-4 py-2.5
+           text-sm text-[#1A1A24] cursor-pointer
+           focus:outline-none focus:ring-2 focus:ring-brand-rouge/30
+           transition-all duration-200;
+  }
+
+  /* Skeleton loader */
+  .skeleton {
+    @apply bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100
+           bg-[length:200%_100%] animate-shimmer rounded-lg;
+  }
+
+  /* Section container */
+  .section {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Grain overlay */
+  .grain {
+    @apply relative;
+  }
+  .grain::after {
+    content: '';
+    @apply absolute inset-0 pointer-events-none opacity-[0.03]
+           bg-grain mix-blend-multiply;
+  }
+
+  /* Hero tag */
+  .tag {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full
+           text-xs font-medium bg-black/5 text-[#5A5A6E]
+           hover:bg-black/10 transition-colors cursor-pointer;
+  }
+  .tag.active {
+    @apply bg-brand-rouge/10 text-brand-rouge;
+  }
+
+  /* Stat card */
+  .stat-card {
+    @apply bg-white/80 backdrop-blur-sm rounded-2xl p-6
+           border border-black/[0.06] shadow-card;
+  }
+
+  /* Entry info row */
+  .info-row {
+    @apply flex items-start gap-3 py-3 border-b border-black/[0.06] last:border-0;
+  }
+
+  /* Timeline */
+  .timeline-dot {
+    @apply w-3 h-3 rounded-full border-2 border-white shadow-sm flex-shrink-0 mt-1;
+  }
+
+}
+
+/* ── Animations ────────────────────────────────────────── */
+@layer utilities {
+  .animate-delay-100 { animation-delay: 100ms; }
+  .animate-delay-200 { animation-delay: 200ms; }
+  .animate-delay-300 { animation-delay: 300ms; }
+  .animate-delay-400 { animation-delay: 400ms; }
+  .animate-delay-500 { animation-delay: 500ms; }
+  .animate-delay-600 { animation-delay: 600ms; }
+
+  .opacity-0 { opacity: 0; }
+
+  /* Hover lift */
+  .hover-lift {
+    @apply transition-transform duration-300 hover:-translate-y-1;
+  }
+
+  /* Text gradient */
+  .text-gradient {
+    @apply bg-gradient-to-r from-brand-rouge to-brand-or bg-clip-text text-transparent;
+  }
+  .text-gradient-bleu {
+    @apply bg-gradient-to-r from-brand-bleu to-brand-bleu-light bg-clip-text text-transparent;
+  }
+
+  /* Underline on hover */
+  .underline-hover {
+    @apply relative after:absolute after:bottom-0 after:left-0 after:h-px
+           after:w-0 after:bg-current after:transition-all after:duration-300
+           hover:after:w-full;
+  }
+}
+
+/* ── Pattern de fond décoratif ─────────────────────────── */
+.bg-haitian-pattern {
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 20px,
+      rgba(193, 0, 31, 0.02) 20px,
+      rgba(193, 0, 31, 0.02) 21px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 20px,
+      rgba(0, 35, 91, 0.02) 20px,
+      rgba(0, 35, 91, 0.02) 21px
+    );
+}
+
+/* ── Map animation (page home) ─────────────────────────── */
+@keyframes pulse-map {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+/* ── Print styles ──────────────────────────────────────── */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; color: black; }
+  .card { box-shadow: none; border: 1px solid #ddd; }
+}
