@@ -15,7 +15,7 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 export async function sendOTPEmail(email: string, code: string, purpose: 'signup' | 'login' | 'password_reset'): Promise<boolean> {
   try {
     // Check if Resend is available
-    const { Resend } = await import('resend')
+    const Resend = (await import('resend')).Resend
     if (!Resend) throw new Error('Resend not installed')
 
     const resend = new Resend(process.env.RESEND_API_KEY)
@@ -92,7 +92,7 @@ export async function sendOTPEmail(email: string, code: string, purpose: 'signup
 
 export async function sendWelcomeEmail(email: string, fullName?: string): Promise<boolean> {
   try {
-    const { Resend } = await import('resend')
+    const Resend = (await import('resend')).Resend
     if (!Resend) throw new Error('Resend not installed')
 
     const resend = new Resend(process.env.RESEND_API_KEY)
