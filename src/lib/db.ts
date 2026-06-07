@@ -206,7 +206,13 @@ export async function updateEntry(id: number, data: Partial<Entry>): Promise<Ent
   // Construction dynamique de la mise à jour
   const updates = Object.entries(data)
     .filter(([k]) => !['id', 'slug', 'created_at', 'updated_at', 'search_vector'].includes(k))
-    .map(([k, v]) => sql`${sql(k)} = ${v}`)
+    .map(([k, v]) => {
+      const safeV: string | number | boolean | null =
+        v === null || v === undefined ? null
+        : Array.isArray(v) ? JSON.stringify(v)
+        : (v as string | number | boolean)
+      return sql`${sql(k)} = ${safeV}`
+    })
   
   if (updates.length === 0) {
     const entry = await getEntryById(id)
