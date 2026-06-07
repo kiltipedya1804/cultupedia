@@ -38,6 +38,22 @@ export const translations: Translations = {
       by_discipline: 'Par discipline',
       explore_all: 'Tout explorer',
     },
+    search: {
+      placeholder: 'Artiste, groupe, festival, ville, tag...',
+      results: 'résultats',
+      no_results: 'Aucun résultat',
+      filters: 'Filtres',
+      clear: 'Effacer',
+    },
+    footer: {
+      tagline: 'L'encyclopédie vivante de la culture haïtienne — musique, danse, cinéma, arts visuels, théâtre, gastronomie et édition.',
+      rights: 'Tous droits réservés.',
+      made_with: 'Fait avec ♥ pour Haïti',
+    },
+    about: {
+      title: 'À propos de Cultupedia',
+      subtitle: 'L'encyclopédie culturelle haïtienne',
+    },
     // ... autres sections FR
   },
 
@@ -70,6 +86,22 @@ export const translations: Translations = {
       by_discipline: 'Pa disiplin',
       explore_all: 'Eksplore tout',
     },
+    search: {
+      placeholder: 'Atis, gwoup, festival, vil, mo-kle...',
+      results: 'rezilta',
+      no_results: 'Pa gen rezilta',
+      filters: 'Filtre',
+      clear: 'Efase',
+    },
+    footer: {
+      tagline: 'Ansiklopedi vivan kilti ayisyèn nan — mizik, dans, sinema, boza vizyèl, teyat, gastronomie ak edisyon.',
+      rights: 'Tout dwa rezève.',
+      made_with: 'Fèt ak ♥ pou Ayiti',
+    },
+    about: {
+      title: 'Sou Cultupedia',
+      subtitle: 'Ansiklopedi kiltirèl ayisyèn an',
+    },
     // ... autres sections HT
   },
 
@@ -101,6 +133,22 @@ export const translations: Translations = {
       recent: 'Latest entries',
       by_discipline: 'By discipline',
       explore_all: 'Explore all',
+    },
+    search: {
+      placeholder: 'Artist, group, festival, city, tag...',
+      results: 'results',
+      no_results: 'No results',
+      filters: 'Filters',
+      clear: 'Clear',
+    },
+    footer: {
+      tagline: 'The living encyclopedia of Haitian culture — music, dance, cinema, visual arts, theatre, gastronomy and publishing.',
+      rights: 'All rights reserved.',
+      made_with: 'Made with ♥ for Haiti',
+    },
+    about: {
+      title: 'About Cultupedia',
+      subtitle: 'The Haitian cultural encyclopedia',
     },
     // ... autres sections EN
   },
