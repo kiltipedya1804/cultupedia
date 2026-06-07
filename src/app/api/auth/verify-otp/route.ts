@@ -2,7 +2,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyOTP, createUser, verifyUserEmail, getUserByEmail, updateLastLogin } from '@/lib/auth'
 import { sendWelcomeEmail } from '@/lib/email'
-import { cookies } from 'next/headers'
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,6 +42,7 @@ export async function POST(request: NextRequest) {
         )
       }
       user = await createUser(email, full_name)
+      await verifyUserEmail(email)
       await sendWelcomeEmail(email, full_name)
     } else if (purpose === 'login' || purpose === 'password_reset') {
       if (!user) {
@@ -54,17 +54,8 @@ export async function POST(request: NextRequest) {
       await updateLastLogin(user.id)
     }
 
-    // Vérifier l'email si c'est un signup
-    if (purpose === 'signup') {
-      await verifyUserEmail(email)
-    }
-
-    // Créer un cookie de session (simple JWT)
-    const token = require('jsonwebtoken').sign(
-      { userId: user.id },
-      process.env.JWT_SECRET || 'secret',
-      { expiresIn: '7d' }
-    )
+    // Créer un simple token
+    const token = Buffer.from(`${user.id}:${Date.now()}`).toString('base64')
 
     const response = NextResponse.json({
       message: 'Authentification réussie',
@@ -81,7 +72,8 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60, // 7 jours
+      maxAge: 7 * 24 * 60 * 60,
+      path: '/',
     })
 
     return response
