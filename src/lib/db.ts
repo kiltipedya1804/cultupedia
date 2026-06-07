@@ -203,24 +203,25 @@ export async function createEntry(data: Omit<Entry, 'id' | 'slug' | 'created_at'
 }
 
 export async function updateEntry(id: number, data: Partial<Entry>): Promise<Entry> {
-  // Construction dynamique de la mise à jour
-  const updates = Object.entries(data)
-    .filter(([k]) => !['id', 'slug', 'created_at', 'updated_at', 'search_vector'].includes(k))
-    .map(([k, v]) => {
-      const safeV: string | number | boolean | null =
-        v === null || v === undefined ? null
-        : Array.isArray(v) ? JSON.stringify(v)
-        : (v as string | number | boolean)
-      return sql`${sql(k)} = ${safeV}`
-    })
-  
-  if (updates.length === 0) {
+  const excluded = ['id', 'slug', 'created_at', 'updated_at', 'search_vector']
+  const filteredEntries = Object.entries(data).filter(([k]) => !excluded.includes(k))
+
+  if (filteredEntries.length === 0) {
     const entry = await getEntryById(id)
     return entry!
   }
 
+  const patch: Record<string, string | number | boolean | null> = {}
+  for (const [k, v] of filteredEntries) {
+    patch[k] =
+      v === null || v === undefined ? null
+      : Array.isArray(v) ? JSON.stringify(v)
+      : (v as string | number | boolean)
+  }
+
   const rows = await sql<Entry[]>`
-    UPDATE entries SET ${sql.join(updates, sql`, `)}, updated_at = NOW()
+    UPDATE entries
+    SET ${sql(patch, ...Object.keys(patch))}, updated_at = NOW()
     WHERE id = ${id}
     RETURNING *
   `
