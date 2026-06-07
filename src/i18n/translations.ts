@@ -26,13 +26,13 @@ export const translations: Translations = {
     },
     home: {
       hero_title: 'La mémoire culturelle haïtienne',
-      hero_subtitle: 'L\'encyclopédie vivante de la culture haïtienne — musique, danse, cinéma, arts visuels, théâtre, gastronomie et édition.',
+      hero_subtitle: "L'encyclopédie vivante de la culture haïtienne — musique, danse, cinéma, arts visuels, théâtre, gastronomie et édition.",
       hero_cta: 'Explorer la base',
       hero_cta2: 'Rechercher',
       stats_entries: 'entrées culturelles',
       stats_disc: 'disciplines',
       stats_pays: 'pays couverts',
-      stats_years: 'années d\'histoire',
+      stats_years: "années d'histoire",
       featured: 'À la une',
       recent: 'Dernières entrées',
       by_discipline: 'Par discipline',
@@ -51,8 +51,8 @@ export const translations: Translations = {
       made_with: 'Fait avec ♥ pour Haïti',
     },
     about: {
-      title: 'À propos de Cultupedia',
-      subtitle: 'L'encyclopédie culturelle haïtienne',
+      title: "À propos de Cultupedia",
+      subtitle: "L'encyclopédie culturelle haïtienne",
     },
     // ... autres sections FR
   },
