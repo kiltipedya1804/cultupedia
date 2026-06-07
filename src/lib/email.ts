@@ -79,7 +79,7 @@ export async function sendOTPEmail(email: string, code: string, purpose: 'signup
       html,
     })
 
-    return !!response.id
+    return !!response.data?.id
   } catch (error) {
     console.error('Failed to send OTP email:', error)
     // Fallback: log to console in development
@@ -147,7 +147,7 @@ export async function sendWelcomeEmail(email: string, fullName?: string): Promis
       html,
     })
 
-    return !!response.id
+    return !!response.data?.id
   } catch (error) {
     console.error('Failed to send welcome email:', error)
     return false
