@@ -9,6 +9,7 @@ import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import type { Discipline } from '@/types'
 
+export const dynamic = 'force-dynamic'
 export const revalidate = 3600
 
 async function HeroStats() {
