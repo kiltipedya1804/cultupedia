@@ -87,17 +87,26 @@ export async function searchEntries(filters: SearchFilters): Promise<SearchResul
 
   // Facettes en parallèle
   const [discFacets, regionFacets, statutFacets, typesFacets, paysFacets] = await Promise.all([
-    sql`SELECT discipline AS value, discipline AS label, COUNT(*) AS count FROM entries 
-        WHERE (${q || null} IS NULL OR search_vector @@ websearch_to_tsquery('french', unaccent(${q})))
-        GROUP BY discipline ORDER BY count DESC`,
-    sql`SELECT region AS value, region AS label, COUNT(*) AS count FROM entries 
-        WHERE (${discipline || null} IS NULL OR discipline::TEXT = ${discipline})
-        GROUP BY region ORDER BY count DESC`,
+    q
+      ? sql`SELECT discipline AS value, discipline AS label, COUNT(*) AS count FROM entries 
+            WHERE search_vector @@ websearch_to_tsquery('french', immutable_unaccent(${q}))
+            GROUP BY discipline ORDER BY count DESC`
+      : sql`SELECT discipline AS value, discipline AS label, COUNT(*) AS count FROM entries 
+            GROUP BY discipline ORDER BY count DESC`,
+    discipline
+      ? sql`SELECT region AS value, region AS label, COUNT(*) AS count FROM entries 
+            WHERE discipline::TEXT = ${discipline}
+            GROUP BY region ORDER BY count DESC`
+      : sql`SELECT region AS value, region AS label, COUNT(*) AS count FROM entries 
+            GROUP BY region ORDER BY count DESC`,
     sql`SELECT statut AS value, statut AS label, COUNT(*) AS count FROM entries 
         GROUP BY statut ORDER BY count DESC`,
-    sql`SELECT type AS value, type AS label, COUNT(*) AS count FROM entries 
-        WHERE (${discipline || null} IS NULL OR discipline::TEXT = ${discipline})
-        GROUP BY type ORDER BY count DESC LIMIT 15`,
+    discipline
+      ? sql`SELECT type AS value, type AS label, COUNT(*) AS count FROM entries 
+            WHERE discipline::TEXT = ${discipline}
+            GROUP BY type ORDER BY count DESC LIMIT 15`
+      : sql`SELECT type AS value, type AS label, COUNT(*) AS count FROM entries 
+            GROUP BY type ORDER BY count DESC LIMIT 15`,
     sql`SELECT pays AS value, pays AS label, COUNT(*) AS count FROM entries 
         GROUP BY pays ORDER BY count DESC LIMIT 20`,
   ])
