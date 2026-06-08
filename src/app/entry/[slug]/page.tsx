@@ -2,13 +2,14 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowLeft, MapPin, Calendar, Tag, Globe, Building, Mic, ExternalLink, Share2 } from 'lucide-react'
+import { ArrowLeft, MapPin, Calendar, Tag, Globe, Building, Mic, ExternalLink } from 'lucide-react'
 import { getEntryBySlug, getRelatedEntries } from '@/lib/db'
 import { DISCIPLINE_MAP, STATUT_CONFIG, getTypeLabel } from '@/lib/config'
 import EntryCard from '@/components/profile/EntryCard'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { cn } from '@/lib/utils'
+import ShareButton from '@/components/ShareButton'
 
 interface Props {
   params: { slug: string }
@@ -128,13 +129,7 @@ export default async function EntryPage({ params }: Props) {
                       Lien externe
                     </a>
                   )}
-                  <button
-                    onClick={() => navigator.share?.({ title: entry.nom, url: window.location.href })}
-                    className="btn-ghost text-sm"
-                  >
-                    <Share2 className="w-4 h-4" />
-                    Partager
-                  </button>
+                  <ShareButton title={entry.nom} />
                 </div>
               </div>
 
