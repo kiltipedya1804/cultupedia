@@ -113,6 +113,9 @@ export default function Navbar({ lang = 'fr' }: NavbarProps) {
               <Link href="/search" className={cn('btn-ghost', pathname === '/search' && 'text-brand-rouge')}>
                 {t.nav.search}
               </Link>
+              <Link href="/profiles" className={cn('btn-ghost', pathname === '/profiles' && 'text-brand-rouge')}>
+                Profils
+              </Link>
               <Link href="/about" className={cn('btn-ghost', pathname === '/about' && 'text-brand-rouge')}>
                 {t.nav.about}
               </Link>
@@ -131,6 +134,16 @@ export default function Navbar({ lang = 'fr' }: NavbarProps) {
               >
                 <Search className="w-5 h-5" />
               </button>
+
+              {/* Contribuer */}
+              <Link href="/contribute" className="hidden md:flex btn-primary text-sm py-2 px-4">
+                + Contribuer
+              </Link>
+
+              {/* Connexion */}
+              <Link href="/auth" className="hidden md:flex btn-ghost text-sm py-2 px-4">
+                Connexion
+              </Link>
 
               {/* Langue */}
               <div className="relative group hidden md:block">
@@ -188,6 +201,18 @@ export default function Navbar({ lang = 'fr' }: NavbarProps) {
                 <Link href="/search"  className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/[0.04]" onClick={() => setOpen(false)}>
                   <Search className="w-4 h-4 text-[#9090A8]" />
                   <span className="text-sm font-medium">{t.nav.search}</span>
+                </Link>
+                <Link href="/profiles" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/[0.04]" onClick={() => setOpen(false)}>
+                  <span className="w-4 h-4 text-[#9090A8] text-center">👤</span>
+                  <span className="text-sm font-medium">Profils</span>
+                </Link>
+                <Link href="/contribute" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/[0.04]" onClick={() => setOpen(false)}>
+                  <span className="w-4 h-4 text-[#9090A8] text-center">✚</span>
+                  <span className="text-sm font-medium">Contribuer</span>
+                </Link>
+                <Link href="/auth" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/[0.04]" onClick={() => setOpen(false)}>
+                  <span className="w-4 h-4 text-[#9090A8] text-center">→</span>
+                  <span className="text-sm font-medium">Connexion</span>
                 </Link>
                 <Link href="/about"   className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/[0.04]" onClick={() => setOpen(false)}>
                   <span className="w-4 h-4 text-[#9090A8] text-center">ℹ</span>

@@ -71,10 +71,13 @@ export default function Footer({ lang = 'fr' }: { lang?: Lang }) {
             </h4>
             <ul className="space-y-2">
               {[
-                { href: '/search',  label: t.nav.search },
-                { href: '/about',   label: t.nav.about  },
-                { href: '/contact', label: t.nav.contact },
-                { href: '/admin',   label: t.nav.admin   },
+                { href: '/search',     label: t.nav.search },
+                { href: '/profiles',   label: 'Profils' },
+                { href: '/contribute', label: 'Contribuer' },
+                { href: '/auth',       label: 'Connexion' },
+                { href: '/about',      label: t.nav.about  },
+                { href: '/contact',    label: t.nav.contact },
+                { href: '/admin',      label: t.nav.admin   },
               ].map(item => (
                 <li key={item.href}>
                   <Link
