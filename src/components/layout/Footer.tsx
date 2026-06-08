@@ -30,9 +30,8 @@ export default function Footer({ lang = 'fr' }: { lang?: Lang }) {
             </p>
             <div className="flex gap-3 mt-6">
               {(['fr','ht','en'] as Lang[]).map(l => (
-                <Link
+                <button
                   key={l}
-                  href={`/${l}`}
                   className={`text-xs font-semibold uppercase px-3 py-1.5 rounded-lg transition-colors ${
                     l === lang
                       ? 'bg-brand-rouge text-white'
@@ -40,7 +39,7 @@ export default function Footer({ lang = 'fr' }: { lang?: Lang }) {
                   }`}
                 >
                   {l === 'ht' ? 'HT' : l.toUpperCase()}
-                </Link>
+                </button>
               ))}
             </div>
           </div>
