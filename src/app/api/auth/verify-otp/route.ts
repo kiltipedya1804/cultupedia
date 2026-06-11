@@ -27,15 +27,31 @@ export async function POST(request: NextRequest) {
       if (user) {
         return NextResponse.json({ error: 'Email déjà utilisé' }, { status: 409 })
       }
-      user = await createUser(email, full_name)
+
+      // Récupérer les données de l'inscription en attente
+      const pending = await sql`
+        SELECT full_name, role_label, password_hash FROM pending_registrations
+        WHERE email = ${email} AND expires_at > NOW()
+        LIMIT 1
+      `
+      const pendingData = pending[0]
+
+      user = await createUser(email, pendingData?.full_name ?? full_name)
       await verifyUserEmail(email)
 
-      // Sauvegarder le role_label
-      if (role_label) {
-        await sql`UPDATE users SET role_label = ${role_label} WHERE email = ${email}`
-      }
+      // Sauvegarder role_label et password_hash
+      await sql`
+        UPDATE users SET
+          role_label = ${pendingData?.role_label ?? role_label ?? null},
+          password_hash = ${pendingData?.password_hash ?? null}
+        WHERE email = ${email}
+      `
 
-      await sendWelcomeEmail(email, full_name)
+      // Nettoyer
+      await sql`DELETE FROM pending_registrations WHERE email = ${email}`
+
+      await sendWelcomeEmail(email, pendingData?.full_name ?? full_name).catch(() => {})
+
     } else if (purpose === 'login' || purpose === 'password_reset') {
       if (!user) {
         return NextResponse.json({ error: 'Email non trouvé' }, { status: 404 })
