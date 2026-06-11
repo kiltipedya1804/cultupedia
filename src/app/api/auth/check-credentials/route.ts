@@ -44,7 +44,8 @@ export async function POST(req: NextRequest) {
       const rows = await sql`SELECT password_hash FROM users WHERE email = ${email}`
       const hash = rows[0]?.password_hash
       if (!hash) {
-        return NextResponse.json({ error: 'Aucun mot de passe défini — utilisez la réinitialisation' }, { status: 401 })
+        // Pas de mot de passe défini — autoriser connexion OTP uniquement
+        return NextResponse.json({ ok: true, otp_only: true })
       }
       const valid = await bcrypt.compare(password, hash)
       if (!valid) {
