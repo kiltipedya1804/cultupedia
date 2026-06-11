@@ -22,12 +22,26 @@ export default function Navbar({ lang = 'fr' }: NavbarProps) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQ, setSearchQ] = useState('')
   const [discOpen, setDiscOpen] = useState(false)
+  const [user, setUser] = useState<{ full_name: string | null; email: string } | null>(null)
 
   useEffect(() => {
     const handle = () => setScrolled(window.scrollY > 24)
     window.addEventListener('scroll', handle, { passive: true })
     return () => window.removeEventListener('scroll', handle)
   }, [])
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(res => res.ok ? res.json() : null)
+      .then(data => { if (data?.user) setUser(data.user) })
+      .catch(() => {})
+  }, [])
+
+  async function handleLogout() {
+    await fetch('/api/auth/logout', { method: 'POST' })
+    setUser(null)
+    router.push('/')
+  }
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
@@ -140,10 +154,24 @@ export default function Navbar({ lang = 'fr' }: NavbarProps) {
                 + Contribuer
               </Link>
 
-              {/* Connexion */}
-              <Link href="/auth" className="hidden md:flex btn-ghost text-sm py-2 px-4">
-                Connexion
-              </Link>
+              {/* Auth */}
+              {user ? (
+                <div className="hidden md:flex items-center gap-2">
+                  <Link href="/dashboard" className="btn-ghost text-sm py-2 px-4 flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-brand-rouge text-white text-xs flex items-center justify-center font-bold">
+                      {(user.full_name ?? user.email).charAt(0).toUpperCase()}
+                    </span>
+                    {user.full_name ?? 'Mon espace'}
+                  </Link>
+                  <button onClick={handleLogout} className="btn-ghost text-sm py-2 px-4 text-[#9090A8] hover:text-brand-rouge">
+                    Déconnexion
+                  </button>
+                </div>
+              ) : (
+                <Link href="/auth" className="hidden md:flex btn-ghost text-sm py-2 px-4">
+                  Connexion
+                </Link>
+              )}
 
               {/* Langue */}
               <div className="relative group hidden md:block">
@@ -210,10 +238,23 @@ export default function Navbar({ lang = 'fr' }: NavbarProps) {
                   <span className="w-4 h-4 text-[#9090A8] text-center">✚</span>
                   <span className="text-sm font-medium">Contribuer</span>
                 </Link>
-                <Link href="/auth" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/[0.04]" onClick={() => setOpen(false)}>
-                  <span className="w-4 h-4 text-[#9090A8] text-center">→</span>
-                  <span className="text-sm font-medium">Connexion</span>
-                </Link>
+                {user ? (
+                  <>
+                    <Link href="/dashboard" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/[0.04]" onClick={() => setOpen(false)}>
+                      <span className="w-4 h-4 text-[#9090A8] text-center">👤</span>
+                      <span className="text-sm font-medium">Mon espace</span>
+                    </Link>
+                    <button onClick={() => { handleLogout(); setOpen(false) }} className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/[0.04] w-full text-left">
+                      <span className="w-4 h-4 text-[#9090A8] text-center">→</span>
+                      <span className="text-sm font-medium text-[#9090A8]">Déconnexion</span>
+                    </button>
+                  </>
+                ) : (
+                  <Link href="/auth" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/[0.04]" onClick={() => setOpen(false)}>
+                    <span className="w-4 h-4 text-[#9090A8] text-center">→</span>
+                    <span className="text-sm font-medium">Connexion</span>
+                  </Link>
+                )}
                 <Link href="/about"   className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/[0.04]" onClick={() => setOpen(false)}>
                   <span className="w-4 h-4 text-[#9090A8] text-center">ℹ</span>
                   <span className="text-sm font-medium">{t.nav.about}</span>
