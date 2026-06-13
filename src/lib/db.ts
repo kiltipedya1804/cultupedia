@@ -423,3 +423,25 @@ export async function searchProfiles(
 }
 
 
+
+// ── À ajouter dans src/lib/db.ts ─────────────────────────
+
+export async function getEntriesByCategory(
+  category: string, limit = 24, offset = 0
+): Promise<{ entries: Entry[]; total: number }> {
+  const [entries, countResult] = await Promise.all([
+    sql<Entry[]>`
+      SELECT e.* FROM entries e
+      JOIN entry_categories ec ON ec.entry_id = e.id
+      WHERE ec.category = ${category}
+      ORDER BY e.featured DESC, e.views DESC, e.created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `,
+    sql`
+      SELECT COUNT(*) AS count FROM entry_categories
+      WHERE category = ${category}
+    `,
+  ])
+  return { entries, total: Number(countResult[0]?.count ?? 0) }
+}
+
