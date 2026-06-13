@@ -421,3 +421,5 @@ export async function searchProfiles(
 
   return { profiles: rows, total: Number(countRows[0]?.count ?? 0) }
 }
+
+
