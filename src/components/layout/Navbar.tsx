@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { Search, Menu, X, Globe, ChevronDown } from 'lucide-react'
 import { DISCIPLINES, SITE_CONFIG } from '@/lib/config'
+import { CATEGORIES, CATEGORY_FAMILIES, getCategoriesByFamily } from '@/lib/categories'
 import { useTranslations } from '@/i18n/translations'
 import type { Lang } from '@/types'
 import { cn } from '@/lib/utils'
@@ -88,38 +89,47 @@ export default function Navbar({ lang = 'fr' }: NavbarProps) {
             {/* Nav desktop */}
             <div className="hidden lg:flex items-center gap-1">
 
-              {/* Dropdown disciplines */}
+              {/* Dropdown catégories groupées par famille */}
               <div className="relative" onMouseLeave={() => setDiscOpen(false)}>
                 <button
                   onMouseEnter={() => setDiscOpen(true)}
                   onClick={() => setDiscOpen(!discOpen)}
-                  className={cn(
-                    'btn-ghost gap-1',
-                    discOpen && 'bg-black/5'
-                  )}
+                  className={cn('btn-ghost gap-1', discOpen && 'bg-black/5')}
                 >
                   Explorer
                   <ChevronDown className={cn('w-4 h-4 transition-transform duration-200', discOpen && 'rotate-180')} />
                 </button>
 
                 {discOpen && (
-                  <div className="absolute top-full left-0 mt-1 w-72 bg-white rounded-2xl shadow-xl border border-black/[0.08] p-2 animate-fade-in z-50">
-                    {DISCIPLINES.map(disc => (
-                      <Link
-                        key={disc.id}
-                        href={`/categories/${disc.id}`}
-                        className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/[0.04] transition-colors group"
-                        onClick={() => setDiscOpen(false)}
-                      >
-                        <span className="text-xl">{disc.emoji}</span>
-                        <div>
-                          <div className="font-semibold text-sm text-[#1A1A24] group-hover:text-brand-rouge transition-colors">
-                            {disc.label[lang]}
-                          </div>
-                          <div className="text-xs text-[#9090A8] mt-0.5">{disc.description[lang]}</div>
+                  <div className="absolute top-full left-0 mt-1 w-[640px] bg-white rounded-2xl shadow-xl border border-black/[0.08] p-4 animate-fade-in z-50 grid grid-cols-2 gap-2 max-h-[70vh] overflow-y-auto">
+                    {CATEGORY_FAMILIES.map(family => (
+                      <div key={family.id} className="mb-2">
+                        <div className="text-[10px] font-bold text-brand-rouge uppercase tracking-widest px-3 py-1.5">
+                          {family.label[lang]}
                         </div>
-                      </Link>
+                        {getCategoriesByFamily(family.id).map(cat => (
+                          <Link
+                            key={cat.id}
+                            href={`/categories/${cat.id}`}
+                            className="flex items-start gap-2.5 px-3 py-2 rounded-xl hover:bg-black/[0.04] transition-colors group"
+                            onClick={() => setDiscOpen(false)}
+                          >
+                            <span className="text-lg flex-shrink-0">{cat.emoji}</span>
+                            <div className="min-w-0">
+                              <div className="font-semibold text-xs text-[#1A1A24] group-hover:text-brand-rouge transition-colors leading-tight">
+                                {cat.label[lang]}
+                              </div>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
                     ))}
+                    <div className="col-span-2 border-t border-black/[0.06] pt-2 mt-1">
+                      <Link href="/categories" onClick={() => setDiscOpen(false)}
+                        className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-brand-rouge/[0.04] hover:bg-brand-rouge/10 text-brand-rouge font-semibold text-sm transition-colors">
+                        Voir toutes les catégories →
+                      </Link>
+                    </div>
                   </div>
                 )}
               </div>
@@ -212,17 +222,21 @@ export default function Navbar({ lang = 'fr' }: NavbarProps) {
           <div className="lg:hidden bg-white border-t border-black/[0.06] animate-fade-in">
             <div className="section py-4 space-y-1">
               <div className="px-4 py-2 text-xs font-semibold text-[#9090A8] uppercase tracking-widest">
-                Disciplines
+                Catégories
               </div>
-              {DISCIPLINES.map(disc => (
+              <Link href="/categories" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/[0.04] transition-colors" onClick={() => setOpen(false)}>
+                <span>🗂️</span>
+                <span className="font-medium text-sm">Toutes les catégories</span>
+              </Link>
+              {CATEGORIES.slice(0, 6).map(cat => (
                 <Link
-                  key={disc.id}
-                  href={`/categories/${disc.id}`}
+                  key={cat.id}
+                  href={`/categories/${cat.id}`}
                   className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/[0.04] transition-colors"
                   onClick={() => setOpen(false)}
                 >
-                  <span>{disc.emoji}</span>
-                  <span className="font-medium text-sm">{disc.label[lang]}</span>
+                  <span>{cat.emoji}</span>
+                  <span className="font-medium text-sm">{cat.label[lang]}</span>
                 </Link>
               ))}
               <div className="border-t border-black/[0.06] pt-2 mt-2 space-y-1">
@@ -290,14 +304,14 @@ export default function Navbar({ lang = 'fr' }: NavbarProps) {
               </button>
             </form>
             <div className="mt-3 flex flex-wrap gap-2 px-1">
-              {DISCIPLINES.map(d => (
+              {CATEGORIES.slice(0, 8).map(c => (
                 <Link
-                  key={d.id}
-                  href={`/categories/${d.id}`}
+                  key={c.id}
+                  href={`/categories/${c.id}`}
                   className="tag"
                   onClick={() => setSearchOpen(false)}
                 >
-                  {d.emoji} {d.label[lang]}
+                  {c.emoji} {c.label[lang]}
                 </Link>
               ))}
             </div>
