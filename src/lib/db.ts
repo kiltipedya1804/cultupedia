@@ -445,3 +445,98 @@ export async function getEntriesByCategory(
   return { entries, total: Number(countResult[0]?.count ?? 0) }
 }
 
+
+// ── À AJOUTER dans src/lib/db.ts (remplace l'interface Profile et createProfile existants) ──
+
+export interface Profile {
+  id: string
+  user_id: string | null
+  slug: string
+  nom: string
+  type: string
+  discipline: string | null
+  bio: string | null
+  ville: string | null
+  pays: string | null
+  region: string | null
+  image_url: string | null
+  cover_image_url: string | null
+  lien: string | null
+  lien_instagram: string | null
+  lien_facebook: string | null
+  lien_youtube: string | null
+  lien_tiktok: string | null
+  lien_twitter: string | null
+  lien_spotify: string | null
+  lien_deezer: string | null
+  lien_applemusic: string | null
+  lien_soundcloud: string | null
+  telephone: string | null
+  email_contact: string | null
+  tags: string | null
+  status: 'pending' | 'approved' | 'rejected'
+  created_by: string | null
+  validated_by: string | null
+  validated_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export async function createProfile(
+  data: Omit<Profile, 'id' | 'slug' | 'status' | 'validated_by' | 'validated_at' | 'created_at' | 'updated_at'>
+): Promise<Profile> {
+  const baseSlug = slugifyProfile(data.nom)
+  const existing = await sql`SELECT slug FROM profiles WHERE slug LIKE ${baseSlug + '%'} ORDER BY slug`
+  const slug = existing.length > 0 ? `${baseSlug}-${existing.length + 1}` : baseSlug
+
+  const rows = await sql<Profile[]>`
+    INSERT INTO profiles (
+      user_id, slug, nom, type, discipline, bio, ville, pays, region,
+      image_url, cover_image_url, lien, lien_instagram, lien_facebook, lien_youtube,
+      lien_tiktok, lien_twitter, lien_spotify, lien_deezer, lien_applemusic, lien_soundcloud,
+      telephone, email_contact, tags, created_by
+    ) VALUES (
+      ${data.user_id ?? null}, ${slug}, ${data.nom}, ${data.type},
+      ${data.discipline ?? null}, ${data.bio ?? null}, ${data.ville ?? null},
+      ${data.pays ?? null}, ${data.region ?? null},
+      ${data.image_url ?? null}, ${data.cover_image_url ?? null},
+      ${data.lien ?? null}, ${data.lien_instagram ?? null}, ${data.lien_facebook ?? null}, ${data.lien_youtube ?? null},
+      ${data.lien_tiktok ?? null}, ${data.lien_twitter ?? null}, ${data.lien_spotify ?? null},
+      ${data.lien_deezer ?? null}, ${data.lien_applemusic ?? null}, ${data.lien_soundcloud ?? null},
+      ${data.telephone ?? null}, ${data.email_contact ?? null},
+      ${data.tags ?? null}, ${data.created_by ?? null}
+    )
+    RETURNING *
+  `
+  return rows[0]
+}
+
+// Récupère un profil par slug quel que soit son statut (pour le propriétaire / édition)
+export async function getProfileBySlugAny(slug: string): Promise<Profile | null> {
+  const rows = await sql<Profile[]>`SELECT * FROM profiles WHERE slug = ${slug} LIMIT 1`
+  return rows[0] || null
+}
+
+export async function updateProfile(id: string, data: Partial<Profile>): Promise<Profile> {
+  const excluded = ['id', 'slug', 'status', 'created_by', 'validated_by', 'validated_at', 'created_at', 'updated_at', 'user_id']
+  const entries = Object.entries(data).filter(([k]) => !excluded.includes(k))
+
+  const patch: Record<string, string | null> = {}
+  for (const [k, v] of entries) {
+    patch[k] = v === undefined || v === null ? null : String(v)
+  }
+
+  if (Object.keys(patch).length === 0) {
+    const rows = await sql<Profile[]>`SELECT * FROM profiles WHERE id = ${id}`
+    return rows[0]
+  }
+
+  const rows = await sql<Profile[]>`
+    UPDATE profiles
+    SET ${sql(patch, ...Object.keys(patch))}, updated_at = NOW()
+    WHERE id = ${id}
+    RETURNING *
+  `
+  return rows[0]
+}
+
