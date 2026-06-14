@@ -1,4 +1,4 @@
-// src/lib/db.ts
+﻿// src/lib/db.ts
 import postgres from 'postgres'
 import type { Entry, SearchFilters, SearchResult, Facets, GlobalStats, Discipline } from '@/types'
 
@@ -301,130 +301,6 @@ export async function bulkImportEntries(
   return { processed, errors }
 }
 
-// ── Profiles ──────────────────────────────────────────────
-
-export interface Profile {
-  id: string
-  user_id: string | null
-  slug: string
-  nom: string
-  type: string
-  discipline: string | null
-  bio: string | null
-  ville: string | null
-  pays: string | null
-  region: string | null
-  image_url: string | null
-  lien: string | null
-  lien_instagram: string | null
-  lien_facebook: string | null
-  lien_youtube: string | null
-  tags: string | null
-  status: 'pending' | 'approved' | 'rejected'
-  created_by: string | null
-  validated_by: string | null
-  validated_at: string | null
-  created_at: string
-  updated_at: string
-}
-
-function slugifyProfile(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .trim()
-    .slice(0, 80)
-}
-
-export async function createProfile(
-  data: Omit<Profile, 'id' | 'slug' | 'status' | 'validated_by' | 'validated_at' | 'created_at' | 'updated_at'>
-): Promise<Profile> {
-  const baseSlug = slugifyProfile(data.nom)
-  const existing = await sql`SELECT slug FROM profiles WHERE slug LIKE ${baseSlug + '%'} ORDER BY slug`
-  const slug = existing.length > 0 ? `${baseSlug}-${existing.length + 1}` : baseSlug
-
-  const rows = await sql<Profile[]>`
-    INSERT INTO profiles (
-      user_id, slug, nom, type, discipline, bio, ville, pays, region,
-      image_url, lien, lien_instagram, lien_facebook, lien_youtube, tags, created_by
-    ) VALUES (
-      ${data.user_id ?? null}, ${slug}, ${data.nom}, ${data.type},
-      ${data.discipline ?? null}, ${data.bio ?? null}, ${data.ville ?? null},
-      ${data.pays ?? null}, ${data.region ?? null}, ${data.image_url ?? null},
-      ${data.lien ?? null}, ${data.lien_instagram ?? null}, ${data.lien_facebook ?? null},
-      ${data.lien_youtube ?? null}, ${data.tags ?? null}, ${data.created_by ?? null}
-    )
-    RETURNING *
-  `
-  return rows[0]
-}
-
-export async function getProfileBySlug(slug: string): Promise<Profile | null> {
-  const rows = await sql<Profile[]>`
-    SELECT * FROM profiles WHERE slug = ${slug} AND status = 'approved' LIMIT 1
-  `
-  return rows[0] || null
-}
-
-export async function getProfilesByUser(userId: string): Promise<Profile[]> {
-  return sql<Profile[]>`
-    SELECT * FROM profiles WHERE created_by = ${userId} ORDER BY created_at DESC
-  `
-}
-
-export async function getPendingProfiles(): Promise<Profile[]> {
-  return sql<Profile[]>`
-    SELECT * FROM profiles WHERE status = 'pending' ORDER BY created_at ASC
-  `
-}
-
-export async function validateProfile(id: string, status: 'approved' | 'rejected', adminId: string): Promise<void> {
-  await sql`
-    UPDATE profiles
-    SET status = ${status}, validated_by = ${adminId}, validated_at = NOW(), updated_at = NOW()
-    WHERE id = ${id}
-  `
-}
-
-export async function searchProfiles(
-  q?: string, type?: string, discipline?: string, page = 1, limit = 24
-): Promise<{ profiles: Profile[]; total: number }> {
-  const offset = (page - 1) * limit
-
-  const rows = q
-    ? await sql<Profile[]>`
-        SELECT * FROM profiles
-        WHERE status = 'approved'
-          AND (nom ILIKE ${'%' + q + '%'} OR bio ILIKE ${'%' + q + '%'})
-          ${type ? sql`AND type = ${type}` : sql``}
-          ${discipline ? sql`AND discipline::TEXT = ${discipline}` : sql``}
-        ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`
-    : await sql<Profile[]>`
-        SELECT * FROM profiles
-        WHERE status = 'approved'
-          ${type ? sql`AND type = ${type}` : sql``}
-          ${discipline ? sql`AND discipline::TEXT = ${discipline}` : sql``}
-        ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`
-
-  const countRows = q
-    ? await sql`SELECT COUNT(*) AS count FROM profiles WHERE status = 'approved'
-                AND (nom ILIKE ${'%' + q + '%'} OR bio ILIKE ${'%' + q + '%'})
-                ${type ? sql`AND type = ${type}` : sql``}
-                ${discipline ? sql`AND discipline::TEXT = ${discipline}` : sql``}`
-    : await sql`SELECT COUNT(*) AS count FROM profiles WHERE status = 'approved'
-                ${type ? sql`AND type = ${type}` : sql``}
-                ${discipline ? sql`AND discipline::TEXT = ${discipline}` : sql``}`
-
-  return { profiles: rows, total: Number(countRows[0]?.count ?? 0) }
-}
-
-
-
-// ── À ajouter dans src/lib/db.ts ─────────────────────────
 
 export async function getEntriesByCategory(
   category: string, limit = 24, offset = 0
@@ -446,7 +322,6 @@ export async function getEntriesByCategory(
 }
 
 
-// ── À AJOUTER dans src/lib/db.ts (remplace l'interface Profile et createProfile existants) ──
 
 export interface Profile {
   id: string
@@ -539,4 +414,5 @@ export async function updateProfile(id: string, data: Partial<Profile>): Promise
   `
   return rows[0]
 }
+
 
