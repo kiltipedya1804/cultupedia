@@ -415,4 +415,54 @@ export async function updateProfile(id: string, data: Partial<Profile>): Promise
   return rows[0]
 }
 
+export async function getProfilesByUser(userId: string): Promise<Profile[]> {
+  return sql<Profile[]>`
+    SELECT * FROM profiles WHERE created_by = ${userId} ORDER BY created_at DESC
+  `
+}
 
+export async function getPendingProfiles(): Promise<Profile[]> {
+  return sql<Profile[]>`
+    SELECT * FROM profiles WHERE status = 'pending' ORDER BY created_at ASC
+  `
+}
+
+export async function validateProfile(id: string, status: 'approved' | 'rejected', adminId: string): Promise<void> {
+  await sql`
+    UPDATE profiles
+    SET status = ${status}, validated_by = ${adminId}, validated_at = NOW(), updated_at = NOW()
+    WHERE id = ${id}
+  `
+}
+
+export async function searchProfiles(
+  q?: string, type?: string, discipline?: string, page = 1, limit = 24
+): Promise<{ profiles: Profile[]; total: number }> {
+  const offset = (page - 1) * limit
+
+  const rows = q
+    ? await sql<Profile[]>`
+        SELECT * FROM profiles
+        WHERE status = 'approved'
+          AND (nom ILIKE ${'%' + q + '%'} OR bio ILIKE ${'%' + q + '%'})
+          ${type ? sql`AND type = ${type}` : sql``}
+          ${discipline ? sql`AND discipline::TEXT = ${discipline}` : sql``}
+        ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`
+    : await sql<Profile[]>`
+        SELECT * FROM profiles
+        WHERE status = 'approved'
+          ${type ? sql`AND type = ${type}` : sql``}
+          ${discipline ? sql`AND discipline::TEXT = ${discipline}` : sql``}
+        ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`
+
+  const countRows = q
+    ? await sql`SELECT COUNT(*) AS count FROM profiles WHERE status = 'approved'
+                AND (nom ILIKE ${'%' + q + '%'} OR bio ILIKE ${'%' + q + '%'})
+                ${type ? sql`AND type = ${type}` : sql``}
+                ${discipline ? sql`AND discipline::TEXT = ${discipline}` : sql``}`
+    : await sql`SELECT COUNT(*) AS count FROM profiles WHERE status = 'approved'
+                ${type ? sql`AND type = ${type}` : sql``}
+                ${discipline ? sql`AND discipline::TEXT = ${discipline}` : sql``}`
+
+  return { profiles: rows, total: Number(countRows[0]?.count ?? 0) }
+}
