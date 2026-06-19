@@ -1,4 +1,4 @@
-﻿// src/lib/db.ts
+// src/lib/db.ts
 import postgres from 'postgres'
 import type { Entry, SearchFilters, SearchResult, Facets, GlobalStats, Discipline } from '@/types'
 
@@ -355,6 +355,18 @@ export interface Profile {
   validated_at: string | null
   created_at: string
   updated_at: string
+}
+
+function slugifyProfile(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .trim()
+    .slice(0, 80)
 }
 
 export async function createProfile(
