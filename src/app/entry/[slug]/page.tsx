@@ -59,7 +59,7 @@ export default async function EntryPage({ params }: Props) {
 
   // Catégorie via le nouveau système (fallback sur l'ancien discipline si besoin)
   const cat = entry.discipline ? CATEGORY_MAP[entry.discipline] : null
-  const statut = STATUT_CONFIG[entry.statut] ?? STATUT_CONFIG['archive']
+  const statut = STATUT_CONFIG[entry.statut as keyof typeof STATUT_CONFIG] ?? STATUT_CONFIG['archive']
   const typeLabel = getTypeLabel(entry.type, 'fr')
 
   const related = await getRelatedEntries(entry.id, entry.discipline, 3)
