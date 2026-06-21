@@ -9,6 +9,7 @@ import {
   User, Music, Tv2, BookOpen, Utensils, Palette, Theater, Users, ArrowRight, CheckCircle,
   Instagram, Facebook, Youtube, Globe, Phone, Mail, Image as ImageIcon
 } from 'lucide-react'
+import MediaInput from '@/components/MediaInput'
 
 const PROFILE_TYPES = [
   { id: 'artiste',             label: 'Artiste',                    icon: Palette  },
@@ -238,23 +239,11 @@ export default function CreateProfilePage() {
                   Hébergez vos images sur un service comme Imgur, Cloudinary ou Google Drive (lien public), puis collez l'URL ici.
                 </p>
 
-                <div>
-                  <label className={labelClass}>Photo de profil (carrée, recommandé 400x400px)</label>
-                  <input value={form.image_url} onChange={e => set('image_url', e.target.value)}
-                    placeholder="https://...jpg" className={inputClass} />
-                  {form.image_url && (
-                    <img src={form.image_url} alt="Aperçu" className="w-20 h-20 rounded-2xl object-cover mt-3 border border-black/[0.08]" />
-                  )}
-                </div>
+                <MediaInput type="image" label="Photo de profil (carrée, recommandé 400x400px)"
+                  value={form.image_url} onChange={url => set('image_url', url)} />
 
-                <div>
-                  <label className={labelClass}>Image de couverture (recommandé 1200x400px)</label>
-                  <input value={form.cover_image_url} onChange={e => set('cover_image_url', e.target.value)}
-                    placeholder="https://...jpg" className={inputClass} />
-                  {form.cover_image_url && (
-                    <img src={form.cover_image_url} alt="Aperçu couverture" className="w-full h-32 rounded-2xl object-cover mt-3 border border-black/[0.08]" />
-                  )}
-                </div>
+                <MediaInput type="image" label="Image de couverture (recommandé 1200x400px)"
+                  value={form.cover_image_url} onChange={url => set('cover_image_url', url)} />
 
                 <div>
                   <label className={labelClass}>Tags <span className="normal-case font-normal">(séparés par virgules)</span></label>

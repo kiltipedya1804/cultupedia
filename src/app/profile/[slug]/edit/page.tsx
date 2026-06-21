@@ -8,6 +8,7 @@ import Footer from '@/components/layout/Footer'
 import {
   ArrowRight, CheckCircle, Instagram, Facebook, Youtube, Globe, Phone, Mail, Image as ImageIcon
 } from 'lucide-react'
+import MediaInput from '@/components/MediaInput'
 
 const REGIONS = ['Caraïbes', 'Amérique du Nord', 'Amérique du Sud', 'Europe', 'Afrique', 'Asie', 'Océanie']
 const inputClass = "filter-select w-full text-sm py-3"
@@ -181,17 +182,9 @@ export default function EditProfilePage() {
 
             <h3 className="font-display font-bold text-lg text-[#1A1A24] flex items-center gap-2"><ImageIcon className="w-5 h-5" /> Photos</h3>
 
-            <div>
-              <label className={labelClass}>Photo de profil</label>
-              <input value={form.image_url} onChange={e => set('image_url', e.target.value)} placeholder="https://...jpg" className={inputClass} />
-              {form.image_url && <img src={form.image_url} alt="" className="w-20 h-20 rounded-2xl object-cover mt-3 border border-black/[0.08]" />}
-            </div>
+            <MediaInput type="image" label="Photo de profil" value={form.image_url} onChange={url => set('image_url', url)} />
 
-            <div>
-              <label className={labelClass}>Image de couverture</label>
-              <input value={form.cover_image_url} onChange={e => set('cover_image_url', e.target.value)} placeholder="https://...jpg" className={inputClass} />
-              {form.cover_image_url && <img src={form.cover_image_url} alt="" className="w-full h-32 rounded-2xl object-cover mt-3 border border-black/[0.08]" />}
-            </div>
+            <MediaInput type="image" label="Image de couverture" value={form.cover_image_url} onChange={url => set('cover_image_url', url)} />
 
             <div>
               <label className={labelClass}>Tags</label>

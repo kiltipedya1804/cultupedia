@@ -9,6 +9,7 @@ import {
   Save, ArrowLeft, Plus, Trash2, MapPin, Image as ImageIcon,
   Video, Music, Clock, BookOpen, Globe, CheckCircle, AlertCircle
 } from 'lucide-react'
+import MediaInput from '@/components/MediaInput'
 
 const inputClass = "filter-select w-full text-sm py-3"
 const labelClass = "text-xs font-semibold text-[#9090A8] uppercase tracking-wide mb-1.5 block"
@@ -281,10 +282,8 @@ export default function EditEntryPage() {
                     <label className={labelClass}>Lien web</label>
                     <input value={form.lien} onChange={e => set('lien', e.target.value)} placeholder="https://..." className={inputClass} />
                   </div>
-                  <div>
-                    <label className={labelClass}>Image principale (URL)</label>
-                    <input value={form.image_url} onChange={e => set('image_url', e.target.value)} placeholder="https://..." className={inputClass} />
-                  </div>
+                  <MediaInput type="image" label="Image principale" value={form.image_url}
+                    onChange={url => set('image_url', url)} />
                 </div>
 
                 <div>
@@ -323,13 +322,8 @@ export default function EditEntryPage() {
                   {form.images.length === 0 && <p className="text-sm text-[#9090A8] italic">Aucune photo ajoutée</p>}
                   {form.images.map((img, i) => (
                     <div key={i} className="border border-black/[0.08] rounded-2xl p-4 mb-3 space-y-3">
-                      <div className="flex gap-3">
-                        <div className="flex-1">
-                          <label className={labelClass}>URL de l'image</label>
-                          <input value={img.url} onChange={e => updateMedia('images', i, 'url', e.target.value)} placeholder="https://..." className={inputClass} />
-                        </div>
-                        {img.url && <img src={img.url} alt="" className="w-20 h-20 rounded-xl object-cover flex-shrink-0" />}
-                      </div>
+                      <MediaInput type="image" label="Photo" value={img.url}
+                        onChange={url => updateMedia('images', i, 'url', url)} />
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className={labelClass}>Légende</label>
@@ -356,10 +350,9 @@ export default function EditEntryPage() {
                   {form.videos.length === 0 && <p className="text-sm text-[#9090A8] italic">Aucune vidéo ajoutée</p>}
                   {form.videos.map((v, i) => (
                     <div key={i} className="border border-black/[0.08] rounded-2xl p-4 mb-3 space-y-3">
-                      <div>
-                        <label className={labelClass}>URL YouTube / Vimeo</label>
-                        <input value={v.url} onChange={e => updateMedia('videos', i, 'url', e.target.value)} placeholder="https://youtube.com/watch?v=..." className={inputClass} />
-                      </div>
+                      <MediaInput type="video" label="Vidéo (YouTube/Vimeo en lien, ou fichier)" value={v.url}
+                        onChange={url => updateMedia('videos', i, 'url', url)}
+                        placeholder="https://youtube.com/watch?v=..." />
                       <div className="grid grid-cols-2 gap-3">
                         <div><label className={labelClass}>Titre</label><input value={v.caption} onChange={e => updateMedia('videos', i, 'caption', e.target.value)} className={inputClass} /></div>
                         <div><label className={labelClass}>Source</label><input value={v.credit} onChange={e => updateMedia('videos', i, 'credit', e.target.value)} className={inputClass} /></div>
@@ -378,10 +371,8 @@ export default function EditEntryPage() {
                   {form.audios.length === 0 && <p className="text-sm text-[#9090A8] italic">Aucun audio ajouté</p>}
                   {form.audios.map((a, i) => (
                     <div key={i} className="border border-black/[0.08] rounded-2xl p-4 mb-3 space-y-3">
-                      <div>
-                        <label className={labelClass}>URL SoundCloud / Spotify / MP3</label>
-                        <input value={a.url} onChange={e => updateMedia('audios', i, 'url', e.target.value)} className={inputClass} />
-                      </div>
+                      <MediaInput type="video" label="Audio (SoundCloud/Spotify en lien, ou fichier MP3)" value={a.url}
+                        onChange={url => updateMedia('audios', i, 'url', url)} />
                       <div className="grid grid-cols-2 gap-3">
                         <div><label className={labelClass}>Titre</label><input value={a.caption} onChange={e => updateMedia('audios', i, 'caption', e.target.value)} className={inputClass} /></div>
                         <div><label className={labelClass}>Artiste / Source</label><input value={a.credit} onChange={e => updateMedia('audios', i, 'credit', e.target.value)} className={inputClass} /></div>
