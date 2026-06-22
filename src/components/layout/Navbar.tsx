@@ -140,6 +140,9 @@ export default function Navbar({ lang = 'fr' }: NavbarProps) {
               <Link href="/profiles" className={cn('btn-ghost', pathname === '/profiles' && 'text-brand-rouge')}>
                 Profils
               </Link>
+              <Link href="/map" className={cn('btn-ghost', pathname === '/map' && 'text-brand-rouge')}>
+                🗺️ Carte
+              </Link>
               <Link href="/about" className={cn('btn-ghost', pathname === '/about' && 'text-brand-rouge')}>
                 {t.nav.about}
               </Link>
@@ -247,6 +250,10 @@ export default function Navbar({ lang = 'fr' }: NavbarProps) {
                 <Link href="/profiles" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/[0.04]" onClick={() => setOpen(false)}>
                   <span className="w-4 h-4 text-[#9090A8] text-center">👤</span>
                   <span className="text-sm font-medium">Profils</span>
+                </Link>
+                <Link href="/map" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/[0.04]" onClick={() => setOpen(false)}>
+                  <span className="w-4 h-4 text-center">🗺️</span>
+                  <span className="text-sm font-medium">Carte interactive</span>
                 </Link>
                 <Link href="/contribute" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/[0.04]" onClick={() => setOpen(false)}>
                   <span className="w-4 h-4 text-[#9090A8] text-center">✚</span>
