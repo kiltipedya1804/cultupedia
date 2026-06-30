@@ -1,6 +1,7 @@
 // src/app/api/contribute/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { sql, addPoints, getUserByEmail } from '@/lib/db'
+import { sql, addPoints } from '@/lib/db'
+import { getUserByEmail } from '@/lib/auth'
 import { GAMIFICATION_POINTS } from '@/lib/db'
 
 export async function POST(req: NextRequest) {

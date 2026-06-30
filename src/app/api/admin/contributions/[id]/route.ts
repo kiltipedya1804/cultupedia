@@ -1,6 +1,7 @@
 // src/app/api/admin/contributions/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { sql, createEntry, addPoints, getUserByEmail, GAMIFICATION_POINTS } from '@/lib/db'
+import { sql, createEntry, addPoints, GAMIFICATION_POINTS } from '@/lib/db'
+import { getUserByEmail } from '@/lib/auth'
 import { cookies } from 'next/headers'
 import { getUserById } from '@/lib/auth'
 
