@@ -5,10 +5,14 @@ const nextConfig = {
       { protocol: 'https', hostname: 'res.cloudinary.com' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
     ],
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 jours
   },
   experimental: {
     serverActions: { allowedOrigins: ['localhost:3000'] },
   },
+  compress: true,
+  poweredByHeader: false,
 }
 
 module.exports = nextConfig
