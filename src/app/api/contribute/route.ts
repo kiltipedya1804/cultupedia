@@ -1,6 +1,7 @@
 // src/app/api/contribute/route.ts
 import { NextRequest, NextResponse } from 'next/server'
-import { sql } from '@/lib/db'
+import { sql, addPoints, getUserByEmail } from '@/lib/db'
+import { GAMIFICATION_POINTS } from '@/lib/db'
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,7 +14,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Stocker la contribution dans une table dédiée en attente de validation
     await sql`
       INSERT INTO contributions (
         nom, type, discipline, sous_discipline, statut, annee,
@@ -32,6 +32,14 @@ export async function POST(req: NextRequest) {
         ${body.contributeur_note || null}
       )
     `
+
+    // Award points if the contributor has an account
+    if (body.contributeur_email) {
+      const user = await getUserByEmail(body.contributeur_email)
+      if (user) {
+        await addPoints(user.id, GAMIFICATION_POINTS.CONTRIBUTION_SUBMITTED)
+      }
+    }
 
     return NextResponse.json({ success: true }, { status: 201 })
   } catch (error) {
