@@ -44,7 +44,10 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(result, {
       headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+        // Cache plus long pour requêtes sans recherche texte (catalogue/filtres stables)
+        'Cache-Control': filters.q
+          ? 'public, s-maxage=30, stale-while-revalidate=60'
+          : 'public, s-maxage=120, stale-while-revalidate=300',
       },
     })
   } catch (error) {
@@ -56,13 +59,13 @@ export async function GET(req: NextRequest) {
 const createSchema = z.object({
   nom:             z.string().min(1).max(500),
   type:            z.string().min(1),
-  discipline:      z.enum(['musique','danse','cinema','graffiti','theatre','gastronomie','edition']),
+  discipline:      z.string().min(1),
   sous_discipline: z.string().default(''),
   annee:           z.string().optional(),
   statut:          z.enum(['en_cours','archive','en_projet','fermé']).default('en_cours'),
   ville:           z.string().default(''),
   pays:            z.string().default(''),
-  region:          z.enum(['Caraïbes','Amérique du Nord','Amérique du Sud','Europe','Afrique','Asie','Océanie']),
+  region:          z.string().min(1),
   responsable:     z.string().optional(),
   institution:     z.string().optional(),
   studio:          z.string().optional(),
@@ -77,7 +80,6 @@ const createSchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
-    // Vérifier auth admin (simple API key)
     const apiKey = req.headers.get('x-api-key')
     if (apiKey !== process.env.ADMIN_API_KEY) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
