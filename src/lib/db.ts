@@ -480,3 +480,153 @@ export async function searchProfiles(
 }
 
 
+
+// ── À ajouter dans src/lib/db.ts ─────────────────────────
+
+export interface Badge {
+  id: string
+  nom: string
+  description: string
+  emoji: string
+  points_required: number
+  criteria: string
+}
+
+export interface UserStats {
+  id: string
+  email: string
+  full_name: string | null
+  points: number
+  level: string
+  contributions_count: number
+  approved_count: number
+  badges: Badge[]
+}
+
+const POINTS = {
+  CONTRIBUTION_SUBMITTED: 10,
+  CONTRIBUTION_APPROVED: 25,
+  PROFILE_CREATED: 15,
+  PROFILE_APPROVED: 20,
+  MEDIA_ADDED: 5,
+  TIMELINE_EVENT: 5,
+  TRANSLATION_ADDED: 10,
+}
+
+export function getLevel(points: number): string {
+  if (points >= 1000) return 'légende'
+  if (points >= 500) return 'expert'
+  if (points >= 200) return 'avancé'
+  if (points >= 50) return 'actif'
+  return 'novice'
+}
+
+export async function addPoints(userId: string, amount: number): Promise<void> {
+  await sql`
+    UPDATE users SET points = points + ${amount} WHERE id = ${userId}
+  `
+  const rows = await sql`SELECT points FROM users WHERE id = ${userId}`
+  const points = Number(rows[0]?.points ?? 0)
+  const level = getLevel(points)
+  await sql`UPDATE users SET level = ${level} WHERE id = ${userId}`
+  await checkAndAwardBadges(userId)
+}
+
+export async function checkAndAwardBadges(userId: string): Promise<string[]> {
+  const newBadges: string[] = []
+
+  const userRows = await sql`SELECT points FROM users WHERE id = ${userId}`
+  const points = Number(userRows[0]?.points ?? 0)
+
+  const contribRows = await sql`
+    SELECT COUNT(*) AS total, COUNT(*) FILTER (WHERE status = 'approved') AS approved
+    FROM contributions WHERE contributeur_email = (SELECT email FROM users WHERE id = ${userId})
+  `
+  const total = Number(contribRows[0]?.total ?? 0)
+  const approved = Number(contribRows[0]?.approved ?? 0)
+
+  const existingBadges = await sql`SELECT badge_id FROM user_badges WHERE user_id = ${userId}`
+  const existingIds = new Set(existingBadges.map((b: any) => b.badge_id))
+
+  const checks: [string, boolean][] = [
+    ['premiere_contribution', total >= 1],
+    ['contributeur_actif', total >= 10],
+    ['expert_culture', total >= 50],
+    ['curateur', approved >= 20],
+  ]
+
+  for (const [badgeId, condition] of checks) {
+    if (condition && !existingIds.has(badgeId)) {
+      await sql`
+        INSERT INTO user_badges (user_id, badge_id) VALUES (${userId}, ${badgeId})
+        ON CONFLICT DO NOTHING
+      `
+      newBadges.push(badgeId)
+    }
+  }
+
+  return newBadges
+}
+
+export async function getUserStats(userId: string): Promise<UserStats | null> {
+  const userRows = await sql`
+    SELECT id, email, full_name, points, level FROM users WHERE id = ${userId}
+  `
+  if (userRows.length === 0) return null
+  const user = userRows[0]
+
+  const contribRows = await sql`
+    SELECT COUNT(*) AS total, COUNT(*) FILTER (WHERE status = 'approved') AS approved
+    FROM contributions WHERE contributeur_email = ${user.email}
+  `
+
+  const badgeRows = await sql`
+    SELECT b.* FROM badges b
+    JOIN user_badges ub ON ub.badge_id = b.id
+    WHERE ub.user_id = ${userId}
+    ORDER BY ub.earned_at DESC
+  `
+
+  return {
+    id: user.id,
+    email: user.email,
+    full_name: user.full_name,
+    points: Number(user.points ?? 0),
+    level: user.level ?? 'novice',
+    contributions_count: Number(contribRows[0]?.total ?? 0),
+    approved_count: Number(contribRows[0]?.approved ?? 0),
+    badges: badgeRows as unknown as Badge[],
+  }
+}
+
+export async function getLeaderboard(limit = 20): Promise<UserStats[]> {
+  const users = await sql`
+    SELECT id, email, full_name, points, level
+    FROM users
+    WHERE points > 0
+    ORDER BY points DESC
+    LIMIT ${limit}
+  `
+
+  const results: UserStats[] = []
+  for (const u of users) {
+    const contribRows = await sql`
+      SELECT COUNT(*) AS total, COUNT(*) FILTER (WHERE status = 'approved') AS approved
+      FROM contributions WHERE contributeur_email = ${u.email}
+    `
+    const badgeRows = await sql`
+      SELECT b.* FROM badges b JOIN user_badges ub ON ub.badge_id = b.id WHERE ub.user_id = ${u.id}
+    `
+    results.push({
+      id: u.id, email: u.email, full_name: u.full_name,
+      points: Number(u.points ?? 0), level: u.level ?? 'novice',
+      contributions_count: Number(contribRows[0]?.total ?? 0),
+      approved_count: Number(contribRows[0]?.approved ?? 0),
+      badges: badgeRows as unknown as Badge[],
+    })
+  }
+  return results
+}
+
+export { POINTS as GAMIFICATION_POINTS }
+
