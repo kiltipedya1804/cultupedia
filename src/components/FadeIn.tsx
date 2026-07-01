@@ -12,27 +12,47 @@ interface FadeInProps {
 }
 
 const directionStyles: Record<string, CSSProperties> = {
-  up:    { transform: 'translateY(24px)' },
-  down:  { transform: 'translateY(-24px)' },
-  left:  { transform: 'translateX(24px)' },
-  right: { transform: 'translateX(-24px)' },
+  up:    { transform: 'translateY(28px)' },
+  down:  { transform: 'translateY(-28px)' },
+  left:  { transform: 'translateX(28px)' },
+  right: { transform: 'translateX(-28px)' },
   none:  { transform: 'none' },
 }
 
-export default function FadeIn({ children, delay = 0, direction = 'up', className, duration = 0.5 }: FadeInProps) {
+export default function FadeIn({ children, delay = 0, direction = 'up', className, duration = 0.6 }: FadeInProps) {
   const ref = useRef<HTMLDivElement>(null)
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect() } },
-      { threshold: 0.1, rootMargin: '-40px' }
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
+
+    // Small timeout to ensure hydration is complete
+    const timer = setTimeout(() => {
+      const rect = el.getBoundingClientRect()
+      const inView = rect.top < window.innerHeight && rect.bottom > 0
+
+      if (inView) {
+        // Element already visible - animate after delay
+        setTimeout(() => setVisible(true), delay * 1000)
+      } else {
+        // Element below fold - use IntersectionObserver
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) {
+              setVisible(true)
+              observer.disconnect()
+            }
+          },
+          { threshold: 0.1 }
+        )
+        observer.observe(el)
+        return () => observer.disconnect()
+      }
+    }, 50)
+
+    return () => clearTimeout(timer)
+  }, [delay])
 
   const hiddenStyle: CSSProperties = { opacity: 0, ...directionStyles[direction] }
   const visibleStyle: CSSProperties = { opacity: 1, transform: 'none' }
@@ -43,7 +63,7 @@ export default function FadeIn({ children, delay = 0, direction = 'up', classNam
       className={className}
       style={{
         transition: `opacity ${duration}s ease, transform ${duration}s cubic-bezier(0.21,0.47,0.32,0.98)`,
-        transitionDelay: `${delay}s`,
+        transitionDelay: visible ? '0s' : `${delay}s`,
         ...(visible ? visibleStyle : hiddenStyle),
       }}
     >

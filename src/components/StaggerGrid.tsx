@@ -12,16 +12,28 @@ export function StaggerGrid({ children, className }: Props) {
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect() } },
-      { threshold: 0.05, rootMargin: '-20px' }
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
+
+    setTimeout(() => {
+      const rect = el.getBoundingClientRect()
+      const inView = rect.top < window.innerHeight
+
+      if (inView) {
+        setTimeout(() => setVisible(true), 100)
+      } else {
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) { setVisible(true); observer.disconnect() }
+          },
+          { threshold: 0.05 }
+        )
+        observer.observe(el)
+        return () => observer.disconnect()
+      }
+    }, 50)
   }, [])
 
   return (
-    <div ref={ref} className={className} data-visible={visible}>
+    <div ref={ref} className={className} data-visible={String(visible)}>
       {children}
     </div>
   )
@@ -38,22 +50,23 @@ export function StaggerItem({ children, className }: Props) {
     const parent = el.parentElement
     if (!parent) return
 
-    // Get index among siblings
     const siblings = Array.from(parent.children)
     setIndex(siblings.indexOf(el))
 
-    // Watch parent visibility
-    const observer = new MutationObserver(() => {
+    const check = () => {
       if (parent.getAttribute('data-visible') === 'true') {
         setParentVisible(true)
-        observer.disconnect()
+        return true
       }
+      return false
+    }
+
+    if (check()) return
+
+    const observer = new MutationObserver(() => {
+      if (check()) observer.disconnect()
     })
-    observer.observe(parent, { attributes: true })
-
-    // Check immediately
-    if (parent.getAttribute('data-visible') === 'true') setParentVisible(true)
-
+    observer.observe(parent, { attributes: true, attributeFilter: ['data-visible'] })
     return () => observer.disconnect()
   }, [])
 
@@ -63,9 +76,9 @@ export function StaggerItem({ children, className }: Props) {
       className={className}
       style={{
         opacity: parentVisible ? 1 : 0,
-        transform: parentVisible ? 'none' : 'translateY(20px)',
-        transition: `opacity 0.4s ease, transform 0.4s cubic-bezier(0.21,0.47,0.32,0.98)`,
-        transitionDelay: `${index * 0.06}s`,
+        transform: parentVisible ? 'translateY(0)' : 'translateY(20px)',
+        transition: 'opacity 0.5s ease, transform 0.5s cubic-bezier(0.21,0.47,0.32,0.98)',
+        transitionDelay: `${index * 0.07}s`,
       }}
     >
       {children}
