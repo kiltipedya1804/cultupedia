@@ -1,5 +1,4 @@
 // src/app/page.tsx
-export const dynamic = 'force-dynamic'
 export const revalidate = 3600
 import Link from 'next/link'
 import { Suspense } from 'react'
@@ -25,14 +24,12 @@ async function HeroStats() {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
       {items.map((item, i) => (
-        <FadeIn key={i} delay={0.1 + i * 0.08} direction="up">
-          <div className="stat-card text-center">
-            <div className="font-display font-bold text-2xl md:text-3xl text-brand-rouge">
-              <AnimatedCounter value={item.value} suffix={item.suffix} duration={1.8} />
-            </div>
-            <div className="text-xs text-[#9090A8] mt-1">{item.label}</div>
+        <div key={i} className="stat-card text-center">
+          <div className="font-display font-bold text-2xl md:text-3xl text-brand-rouge">
+            <AnimatedCounter value={item.value} suffix={item.suffix} duration={1.8} />
           </div>
-        </FadeIn>
+          <div className="text-xs text-[#9090A8] mt-1">{item.label}</div>
+        </div>
       ))}
     </div>
   )
@@ -43,8 +40,7 @@ async function FeaturedSection() {
   return (
     <section className="py-20">
       <div className="section">
-        <FadeIn>
-          <div className="flex items-end justify-between mb-10">
+        <div className="flex items-end justify-between mb-10">
             <div>
               <div className="text-xs font-semibold text-brand-rouge uppercase tracking-widest mb-2">À la une</div>
               <h2 className="font-display text-3xl font-bold text-[#1A1A24]">Entrées en vedette</h2>
@@ -53,7 +49,6 @@ async function FeaturedSection() {
               Voir tout <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
-        </FadeIn>
         <StaggerGrid className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {entries.map((entry, i) => (
             <StaggerItem key={entry.id}>
@@ -71,8 +66,7 @@ async function RecentSection() {
   return (
     <section className="py-12 bg-brand-creme-dark/50">
       <div className="section">
-        <FadeIn>
-          <div className="flex items-end justify-between mb-8">
+        <div className="flex items-end justify-between mb-8">
             <div>
               <div className="text-xs font-semibold text-brand-bleu uppercase tracking-widest mb-2">Découvrir</div>
               <h2 className="font-display text-2xl font-bold text-[#1A1A24]">Dernières entrées</h2>
@@ -81,7 +75,6 @@ async function RecentSection() {
               Tout explorer <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
-        </FadeIn>
         <StaggerGrid className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {entries.map(entry => (
             <StaggerItem key={entry.id}>

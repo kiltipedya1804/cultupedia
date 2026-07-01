@@ -1,43 +1,74 @@
 'use client'
 // src/components/StaggerGrid.tsx
-import { motion } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 
-const container = {
-  hidden: {},
-  show: {
-    transition: { staggerChildren: 0.06 },
-  },
-}
+interface Props { children: ReactNode; className?: string }
 
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.21, 0.47, 0.32, 0.98] } },
-}
+export function StaggerGrid({ children, className }: Props) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(false)
 
-interface StaggerGridProps {
-  children: ReactNode
-  className?: string
-}
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect() } },
+      { threshold: 0.05, rootMargin: '-20px' }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
-export function StaggerGrid({ children, className }: StaggerGridProps) {
   return (
-    <motion.div
-      variants={container}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, margin: '-40px' }}
-      className={className}
-    >
+    <div ref={ref} className={className} data-visible={visible}>
       {children}
-    </motion.div>
+    </div>
   )
 }
 
-export function StaggerItem({ children, className }: { children: ReactNode; className?: string }) {
+export function StaggerItem({ children, className }: Props) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [index, setIndex] = useState(0)
+  const [parentVisible, setParentVisible] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const parent = el.parentElement
+    if (!parent) return
+
+    // Get index among siblings
+    const siblings = Array.from(parent.children)
+    setIndex(siblings.indexOf(el))
+
+    // Watch parent visibility
+    const observer = new MutationObserver(() => {
+      if (parent.getAttribute('data-visible') === 'true') {
+        setParentVisible(true)
+        observer.disconnect()
+      }
+    })
+    observer.observe(parent, { attributes: true })
+
+    // Check immediately
+    if (parent.getAttribute('data-visible') === 'true') setParentVisible(true)
+
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <motion.div variants={item} className={className}>
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: parentVisible ? 1 : 0,
+        transform: parentVisible ? 'none' : 'translateY(20px)',
+        transition: `opacity 0.4s ease, transform 0.4s cubic-bezier(0.21,0.47,0.32,0.98)`,
+        transitionDelay: `${index * 0.06}s`,
+      }}
+    >
       {children}
-    </motion.div>
+    </div>
   )
 }

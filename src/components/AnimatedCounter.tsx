@@ -1,7 +1,6 @@
 'use client'
 // src/components/AnimatedCounter.tsx
 import { useEffect, useRef, useState } from 'react'
-import { motion, useInView, animate } from 'framer-motion'
 
 interface AnimatedCounterProps {
   value: number
@@ -12,25 +11,44 @@ interface AnimatedCounterProps {
 }
 
 export default function AnimatedCounter({ value, duration = 1.5, suffix = '', prefix = '', formatFn }: AnimatedCounterProps) {
-  const ref = useRef<HTMLSpanElement>(null)
-  const isInView = useInView(ref, { once: true, margin: '-50px' })
   const [display, setDisplay] = useState(0)
+  const [started, setStarted] = useState(false)
+  const ref = useRef<HTMLSpanElement>(null)
 
   useEffect(() => {
-    if (!isInView) return
-    const controls = animate(0, value, {
-      duration,
-      ease: 'easeOut',
-      onUpdate: (v) => setDisplay(Math.round(v)),
-    })
-    return () => controls.stop()
-  }, [isInView, value, duration])
+    const el = ref.current
+    if (!el) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !started) {
+          setStarted(true)
+          observer.disconnect()
+        }
+      },
+      { threshold: 0.3 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [started])
+
+  useEffect(() => {
+    if (!started) return
+    const startTime = performance.now()
+    const endTime = startTime + duration * 1000
+
+    function update(now: number) {
+      const progress = Math.min((now - startTime) / (endTime - startTime), 1)
+      // Ease out cubic
+      const eased = 1 - Math.pow(1 - progress, 3)
+      setDisplay(Math.round(eased * value))
+      if (progress < 1) requestAnimationFrame(update)
+    }
+
+    requestAnimationFrame(update)
+  }, [started, value, duration])
 
   const formatted = formatFn ? formatFn(display) : display.toLocaleString('fr')
 
-  return (
-    <span ref={ref}>
-      {prefix}{formatted}{suffix}
-    </span>
-  )
+  return <span ref={ref}>{prefix}{formatted}{suffix}</span>
 }

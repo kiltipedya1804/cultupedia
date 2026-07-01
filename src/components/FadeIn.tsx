@@ -1,7 +1,7 @@
 'use client'
 // src/components/FadeIn.tsx
-import { motion } from 'framer-motion'
-import type { ReactNode } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import type { ReactNode, CSSProperties } from 'react'
 
 interface FadeInProps {
   children: ReactNode
@@ -9,31 +9,45 @@ interface FadeInProps {
   direction?: 'up' | 'down' | 'left' | 'right' | 'none'
   className?: string
   duration?: number
-  once?: boolean
 }
 
-const directionOffset = {
-  up: { y: 24, x: 0 },
-  down: { y: -24, x: 0 },
-  left: { x: 24, y: 0 },
-  right: { x: -24, y: 0 },
-  none: { x: 0, y: 0 },
+const directionStyles: Record<string, CSSProperties> = {
+  up:    { transform: 'translateY(24px)' },
+  down:  { transform: 'translateY(-24px)' },
+  left:  { transform: 'translateX(24px)' },
+  right: { transform: 'translateX(-24px)' },
+  none:  { transform: 'none' },
 }
 
-export default function FadeIn({
-  children, delay = 0, direction = 'up', className, duration = 0.5, once = true
-}: FadeInProps) {
-  const offset = directionOffset[direction]
+export default function FadeIn({ children, delay = 0, direction = 'up', className, duration = 0.5 }: FadeInProps) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect() } },
+      { threshold: 0.1, rootMargin: '-40px' }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  const hiddenStyle: CSSProperties = { opacity: 0, ...directionStyles[direction] }
+  const visibleStyle: CSSProperties = { opacity: 1, transform: 'none' }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, ...offset }}
-      whileInView={{ opacity: 1, x: 0, y: 0 }}
-      viewport={{ once, margin: '-60px' }}
-      transition={{ duration, delay, ease: [0.21, 0.47, 0.32, 0.98] }}
+    <div
+      ref={ref}
       className={className}
+      style={{
+        transition: `opacity ${duration}s ease, transform ${duration}s cubic-bezier(0.21,0.47,0.32,0.98)`,
+        transitionDelay: `${delay}s`,
+        ...(visible ? visibleStyle : hiddenStyle),
+      }}
     >
       {children}
-    </motion.div>
+    </div>
   )
 }
