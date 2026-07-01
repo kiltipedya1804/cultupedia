@@ -146,6 +146,9 @@ export default function Navbar({ lang = 'fr' }: NavbarProps) {
               <Link href="/graph" className={cn('btn-ghost', pathname === '/graph' && 'text-brand-rouge')}>
                 🕸️ Graphe
               </Link>
+              <Link href="/community" className={cn('btn-ghost', pathname === '/community' && 'text-brand-rouge')}>
+                Communauté
+              </Link>
               <Link href="/about" className={cn('btn-ghost', pathname === '/about' && 'text-brand-rouge')}>
                 {t.nav.about}
               </Link>
@@ -283,6 +286,10 @@ export default function Navbar({ lang = 'fr' }: NavbarProps) {
                     <span className="text-sm font-medium">Connexion</span>
                   </Link>
                 )}
+                <Link href="/community" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/[0.04]" onClick={() => setOpen(false)}>
+                  <span className="w-4 h-4 text-center">💬</span>
+                  <span className="text-sm font-medium">Communauté</span>
+                </Link>
                 <Link href="/about"   className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/[0.04]" onClick={() => setOpen(false)}>
                   <span className="w-4 h-4 text-[#9090A8] text-center">ℹ</span>
                   <span className="text-sm font-medium">{t.nav.about}</span>
