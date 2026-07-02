@@ -24,3 +24,4 @@ out/
 *.swo
 .vscode/
 .idea/
+.vercel
