@@ -1,5 +1,5 @@
 // src/app/page.tsx
-export const revalidate = 3600
+export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { Search, ArrowRight, Globe, BookOpen, Users } from 'lucide-react'
