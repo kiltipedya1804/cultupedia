@@ -29,6 +29,9 @@ export const metadata: Metadata = {
   },
   description: "L'encyclopédie vivante de la culture haïtienne — musique, danse, cinéma, arts visuels, théâtre, gastronomie et édition.",
   keywords: ['Haïti', 'culture haïtienne', 'musique haïtienne', 'compas', 'encyclopédie', 'kiltipedya'],
+  verification: {
+    google: 'f_sURmloPD06QQgNJvpyXIR1ySaUbKjxRVRNVXIV16w',
+  },
   metadataBase: new URL('https://cultupedia.ht'),
   openGraph: {
     type: 'website',
