@@ -105,7 +105,7 @@ export default function EnrichissementPage() {
       })
       setSaved(true)
       // Update local entry
-      setEntries(prev => prev.map((e, i) => i === current ? { ...e, ...form, completude: calcCompletude(form) } : e))
+      setEntries(prev => prev.map((e, i) => i === current ? { ...e, ...form, latitude: form.latitude ? parseFloat(form.latitude) : null, longitude: form.longitude ? parseFloat(form.longitude) : null, completude: calcCompletude(form) } as Entry : e))
       // Auto-advance after 1s
       setTimeout(() => {
         if (current < entries.length - 1) { setCurrent(c => c + 1); setSaved(false) }
