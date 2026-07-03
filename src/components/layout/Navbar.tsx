@@ -176,6 +176,11 @@ export default function Navbar({ lang = 'fr' }: NavbarProps) {
               {/* Auth */}
               {user ? (
                 <div className="hidden md:flex items-center gap-2">
+                  {(user.role === 'admin' || user.role === 'moderator') && (
+                    <Link href="/admin/moderation" className="btn-ghost text-sm py-2 px-3 text-brand-rouge font-semibold">
+                      ⚙️ Admin
+                    </Link>
+                  )}
                   <Link href="/dashboard" className="btn-ghost text-sm py-2 px-4 flex items-center gap-2">
                     <span className="w-6 h-6 rounded-full bg-brand-rouge text-white text-xs flex items-center justify-center font-bold">
                       {(user.full_name ?? user.email).charAt(0).toUpperCase()}
@@ -271,6 +276,12 @@ export default function Navbar({ lang = 'fr' }: NavbarProps) {
                 </Link>
                 {user ? (
                   <>
+                    {(user.role === 'admin' || user.role === 'moderator') && (
+                      <Link href="/admin/moderation" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/[0.04]" onClick={() => setOpen(false)}>
+                        <span className="w-4 h-4 text-center">⚙️</span>
+                        <span className="text-sm font-medium text-brand-rouge">Admin</span>
+                      </Link>
+                    )}
                     <Link href="/dashboard" className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-black/[0.04]" onClick={() => setOpen(false)}>
                       <span className="w-4 h-4 text-[#9090A8] text-center">👤</span>
                       <span className="text-sm font-medium">Mon espace</span>
