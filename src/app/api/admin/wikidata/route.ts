@@ -30,7 +30,6 @@ export async function GET(req: NextRequest) {
 
     if (!entity) return NextResponse.json({ found: false })
 
-    // 3. Extraire les données utiles
     const labels = entity.labels ?? {}
     const descriptions = entity.descriptions ?? {}
     const claims = entity.claims ?? {}
@@ -48,16 +47,40 @@ export async function GET(req: NextRequest) {
     const dateClaim = claims.P569?.[0]?.mainsnak?.datavalue?.value ??
                       claims.P571?.[0]?.mainsnak?.datavalue?.value
     if (dateClaim?.time) {
-      annee = dateClaim.time.substring(1, 5) // Extraire l'année
+      annee = dateClaim.time.substring(1, 5)
     }
 
-    // Image (P18)
+    // Image via Wikimedia API (méthode correcte)
     let image_url = null
     const imageClaim = claims.P18?.[0]?.mainsnak?.datavalue?.value
     if (imageClaim) {
-      const fileName = imageClaim.replace(/ /g, '_')
-      const hash = await md5Hash(fileName)
-      image_url = `https://upload.wikimedia.org/wikipedia/commons/${hash[0]}/${hash[0]}${hash[1]}/${fileName}`
+      try {
+        const fileName = imageClaim.replace(/ /g, '_')
+        const imgRes = await fetch(
+          `https://en.wikipedia.org/w/api.php?action=query&titles=File:${encodeURIComponent(fileName)}&prop=imageinfo&iiprop=url&format=json&origin=*`
+        )
+        const imgData = await imgRes.json()
+        const pages = imgData.query?.pages ?? {}
+        const page = Object.values(pages)[0] as any
+        image_url = page?.imageinfo?.[0]?.url ?? null
+      } catch {}
+    }
+
+    // Si pas d'image Wikidata, essayer Wikipedia
+    if (!image_url) {
+      const frTitle = entity.sitelinks?.frwiki?.title ?? entity.sitelinks?.enwiki?.title
+      if (frTitle) {
+        try {
+          const wiki = frTitle ? 'fr' : 'en'
+          const wpRes = await fetch(
+            `https://${wiki}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(frTitle)}&prop=pageimages&pithumbsize=800&format=json&origin=*`
+          )
+          const wpData = await wpRes.json()
+          const pages = wpData.query?.pages ?? {}
+          const page = Object.values(pages)[0] as any
+          image_url = page?.thumbnail?.source ?? null
+        } catch {}
+      }
     }
 
     // Site officiel (P856)
@@ -71,16 +94,33 @@ export async function GET(req: NextRequest) {
     if (paysClaim === 'Q790') pays = 'Haïti'
     else if (paysClaim === 'Q142') pays = 'France'
     else if (paysClaim === 'Q30') pays = 'États-Unis'
+    else if (paysClaim === 'Q781') pays = 'Jamaïque'
+    else if (paysClaim === 'Q241') pays = 'Cuba'
 
-    // Wikipedia article FR
+    // Wikipedia URL
     let wikipedia_url = null
     const frSitelink = entity.sitelinks?.frwiki?.title
     if (frSitelink) {
       wikipedia_url = `https://fr.wikipedia.org/wiki/${encodeURIComponent(frSitelink)}`
     }
 
-    // Description FR/HT/EN
-    const description_fr = descriptions.fr?.value ?? null
+    // Description enrichie depuis Wikipedia si Wikidata trop courte
+    let description_fr = descriptions.fr?.value ?? null
+    const frTitle = entity.sitelinks?.frwiki?.title
+    if (frTitle && (!description_fr || description_fr.length < 100)) {
+      try {
+        const extractRes = await fetch(
+          `https://fr.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(frTitle)}&prop=extracts&exintro=true&explaintext=true&exsentences=5&format=json&origin=*`
+        )
+        const extractData = await extractRes.json()
+        const pages = extractData.query?.pages ?? {}
+        const page = Object.values(pages)[0] as any
+        if (page?.extract && page.extract.length > 50) {
+          description_fr = page.extract.slice(0, 800)
+        }
+      } catch {}
+    }
+
     const description_en = descriptions.en?.value ?? null
     const nom_fr = labels.fr?.value ?? labels.en?.value ?? null
 
@@ -110,23 +150,4 @@ export async function GET(req: NextRequest) {
     console.error('Wikidata error:', error)
     return NextResponse.json({ error: 'Erreur Wikidata' }, { status: 500 })
   }
-}
-
-// Simple MD5-like hash pour les URLs Wikimedia (premiers 2 chars du MD5 du nom de fichier)
-async function md5Hash(str: string): Promise<string> {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(str)
-  const hashBuffer = await crypto.subtle.digest('MD5', data).catch(() => null)
-  if (!hashBuffer) {
-    // Fallback: utiliser un hash simple
-    let hash = 0
-    for (let i = 0; i < str.length; i++) {
-      hash = ((hash << 5) - hash) + str.charCodeAt(i)
-      hash |= 0
-    }
-    const hex = Math.abs(hash).toString(16).padStart(8, '0')
-    return hex.slice(0, 2)
-  }
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 2)
 }
