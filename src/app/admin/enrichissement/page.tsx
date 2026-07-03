@@ -105,7 +105,7 @@ export default function EnrichissementPage() {
       })
       setSaved(true)
       // Update local entry
-      setEntries(prev => prev.map((e, i) => i === current ? { ...e, ...form, latitude: form.latitude ? parseFloat(form.latitude) : null, longitude: form.longitude ? parseFloat(form.longitude) : null, completude: calcCompletude(form) } as Entry : e))
+      setEntries(prev => prev.map((e, i) => i === current ? { ...e, ...form, completude: calcCompletude(form) } : e))
       // Auto-advance after 1s
       setTimeout(() => {
         if (current < entries.length - 1) { setCurrent(c => c + 1); setSaved(false) }
@@ -340,6 +340,11 @@ export default function EnrichissementPage() {
                       className={inputClass} />
                   </div>
                 </div>
+
+                <WikidataSuggestion
+                  entryName={entry.nom}
+                  onApply={(field, value) => set(field, value)}
+                />
 
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" checked={form.verified} onChange={e => set('verified', e.target.checked)}
