@@ -23,7 +23,7 @@ export default function Navbar({ lang = 'fr' }: NavbarProps) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQ, setSearchQ] = useState('')
   const [discOpen, setDiscOpen] = useState(false)
-  const [user, setUser] = useState<{ full_name: string | null; email: string } | null>(null)
+  const [user, setUser] = useState<{ full_name: string | null; email: string; role?: string } | null>(null)
 
   useEffect(() => {
     const handle = () => setScrolled(window.scrollY > 24)
