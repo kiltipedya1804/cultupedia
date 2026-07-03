@@ -114,9 +114,14 @@ export default function ModerationPage() {
       <main className="pt-24 pb-20">
         <div className="section max-w-5xl">
 
-          <div className="mb-8">
-            <div className="text-xs font-semibold text-brand-rouge uppercase tracking-widest mb-2">Modération</div>
-            <h1 className="font-display font-bold text-3xl text-[#1A1A24]">Validation des contenus</h1>
+          <div className="mb-8 flex items-start justify-between">
+            <div>
+              <div className="text-xs font-semibold text-brand-rouge uppercase tracking-widest mb-2">Modération</div>
+              <h1 className="font-display font-bold text-3xl text-[#1A1A24]">Validation des contenus</h1>
+            </div>
+            <Link href="/admin/enrichissement" className="btn-primary flex items-center gap-2">
+              ⚡ Enrichissement
+            </Link>
           </div>
 
           {/* Tabs */}
