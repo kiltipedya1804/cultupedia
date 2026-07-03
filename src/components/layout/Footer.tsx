@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { DISCIPLINES, SITE_CONFIG } from '@/lib/config'
 import { useTranslations } from '@/i18n/translations'
 import type { Lang } from '@/types'
+import NewsletterWidget from '@/components/NewsletterWidget'
 
 export default function Footer({ lang = 'fr' }: { lang?: Lang }) {
   const t = useTranslations(lang)
@@ -62,6 +63,19 @@ export default function Footer({ lang = 'fr' }: { lang?: Lang }) {
                 </li>
               ))}
             </ul>
+          </div>
+
+          {/* Newsletter */}
+          <div className="md:col-span-4 border-t border-white/10 pt-8 mt-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div>
+                <h4 className="text-white font-semibold text-base mb-1">📬 Newsletter</h4>
+                <p className="text-sm text-white/60">Actualités culturelles haïtiennes dans votre boîte mail.</p>
+              </div>
+              <div className="w-full md:w-80">
+                <NewsletterWidget variant="footer" />
+              </div>
+            </div>
           </div>
 
           {/* Liens */}
