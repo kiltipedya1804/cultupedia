@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import Navbar from '@/components/layout/Navbar'
+import WikidataSuggestion from '@/components/admin/WikidataSuggestion'
 import { Search, ExternalLink, Save, ChevronRight, ChevronLeft, AlertCircle, CheckCircle, Globe, Image as ImageIcon, MapPin, Zap } from 'lucide-react'
 
 interface Entry {
