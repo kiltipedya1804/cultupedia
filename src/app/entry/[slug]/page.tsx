@@ -106,7 +106,7 @@ export default async function EntryPage({ params }: Props) {
               {/* Image principale / cover */}
               {entry.image_url && (
                 <div className="rounded-2xl overflow-hidden mb-6 shadow-card border border-black/[0.06]">
-                  <img src={entry.image_url} alt={entry.nom} className="w-full h-64 sm:h-80 object-cover" />
+                  <img src={entry.image_url?.includes('wikimedia.org') || entry.image_url?.includes('wikipedia.org') ? /api/proxy/image?url=+encodeURIComponent(entry.image_url) : entry.image_url} alt={entry.nom} className="w-full h-64 sm:h-80 object-cover" />
                 </div>
               )}
 
