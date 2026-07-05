@@ -41,7 +41,7 @@ export async function PATCH(
     const apiKey = req.headers.get('x-api-key')
     const user = await getCurrentUser()
 
-    if (apiKey !== process.env.ADMIN_API_KEY && (!user || !['admin', 'moderator'].includes(user.role))) {
+    if (apiKey !== process.env.ADMIN_API_KEY && !user) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
