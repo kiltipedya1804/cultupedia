@@ -14,6 +14,14 @@ interface EntryCardProps {
   priority?: boolean
 }
 
+function proxyImage(url: string | null): string | null {
+  if (!url) return null
+  if (url.includes('wikimedia.org') || url.includes('wikipedia.org')) {
+    return `/api/proxy/image?url=${encodeURIComponent(url)}`
+  }
+  return url
+}
+
 export default function EntryCard({ entry, lang = 'fr', compact = false, priority = false }: EntryCardProps) {
   const cat = (entry as any).category ? CATEGORY_MAP[(entry as any).category] : (DISCIPLINE_MAP as any)[entry.discipline]
   const statut = STATUT_CONFIG[entry.statut as keyof typeof STATUT_CONFIG] ?? STATUT_CONFIG['archive']
@@ -56,7 +64,7 @@ export default function EntryCard({ entry, lang = 'fr', compact = false, priorit
           {entry.image_url ? (
             <div className="w-11 h-11 rounded-xl overflow-hidden flex-shrink-0 relative bg-black/[0.03]">
               <img
-                src={entry.image_url}
+                src={proxyImage(entry.image_url) ?? ""}
                 alt={entry.nom}
                 className="w-full h-full object-cover"
                 loading={priority ? 'eager' : 'lazy'}
