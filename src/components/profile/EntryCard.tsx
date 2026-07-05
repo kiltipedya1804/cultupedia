@@ -1,7 +1,6 @@
 'use client'
 // src/components/profile/EntryCard.tsx
 import Link from 'next/link'
-import Image from 'next/image'
 import { MapPin, Calendar, Eye, CheckCircle, Star } from 'lucide-react'
 import { DISCIPLINE_MAP, STATUT_CONFIG, getTypeLabel } from '@/lib/config'
 import { CATEGORY_MAP } from '@/lib/categories'
@@ -56,13 +55,11 @@ export default function EntryCard({ entry, lang = 'fr', compact = false, priorit
         <div className="flex items-start justify-between gap-3 mb-3">
           {entry.image_url ? (
             <div className="w-11 h-11 rounded-xl overflow-hidden flex-shrink-0 relative bg-black/[0.03]">
-              <Image
+              <img
                 src={entry.image_url}
                 alt={entry.nom}
-                fill
-                sizes="44px"
+                className="w-full h-full object-cover"
                 loading={priority ? 'eager' : 'lazy'}
-                className="object-cover"
               />
             </div>
           ) : (
