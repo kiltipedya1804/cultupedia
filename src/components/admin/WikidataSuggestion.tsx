@@ -22,6 +22,7 @@ interface WikidataSuggestionProps {
 
 export default function WikidataSuggestion({ entryName, onApply }: WikidataSuggestionProps) {
   const [loading, setLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState(entryName)
   const [result, setResult] = useState<{
     found: boolean
     suggestions?: Suggestion
@@ -38,7 +39,7 @@ export default function WikidataSuggestion({ entryName, onApply }: WikidataSugge
     setResult(null)
     setApplied(new Set())
     try {
-      const res = await fetch(`/api/admin/wikidata?q=${encodeURIComponent(entryName)}`)
+      const res = await fetch(`/api/admin/wikidata?q=${encodeURIComponent(searchQuery)}`)
       const data = await res.json()
       setResult(data)
       if (!data.found) setError('Aucun résultat trouvé sur Wikidata pour cette entrée.')
@@ -84,17 +85,27 @@ export default function WikidataSuggestion({ entryName, onApply }: WikidataSugge
   return (
     <div className="border border-brand-rouge/20 rounded-2xl overflow-hidden">
       {/* Header */}
-      <div className="bg-brand-rouge/[0.04] px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      <div className="bg-brand-rouge/[0.04] px-4 py-3">
+        <div className="flex items-center gap-2 mb-2">
           <Sparkles className="w-4 h-4 text-brand-rouge" />
           <span className="text-sm font-semibold text-[#1A1A24]">Suggestions Wikidata</span>
         </div>
-        <button onClick={fetchSuggestions} disabled={loading}
-          className="btn-primary text-xs py-1.5 px-3 disabled:opacity-50">
-          {loading
-            ? <><Loader2 className="w-3 h-3 animate-spin" /> Recherche...</>
-            : '✨ Suggérer automatiquement'}
-        </button>
+        <div className="flex gap-2">
+          <input
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && fetchSuggestions()}
+            placeholder="Terme de recherche..."
+            className="flex-1 px-3 py-1.5 text-xs border border-black/[0.1] rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-rouge bg-white"
+          />
+          <button onClick={fetchSuggestions} disabled={loading}
+            className="btn-primary text-xs py-1.5 px-3 disabled:opacity-50 flex-shrink-0">
+            {loading
+              ? <><Loader2 className="w-3 h-3 animate-spin" /> Recherche...</>
+              : '✨ Suggérer'}
+          </button>
+        </div>
+        <p className="text-xs text-[#9090A8] mt-1">Modifiez le nom si aucun résultat</p>
       </div>
 
       {/* Contenu */}
