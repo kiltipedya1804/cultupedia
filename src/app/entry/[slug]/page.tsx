@@ -68,7 +68,7 @@ export default async function EntryPage({ params }: Props) {
   const images: any[] = entry.images ?? []
   const videos: any[] = entry.videos ?? []
   const audios: any[] = entry.audios ?? []
-  const timeline: any[] = (entry.timeline ?? []).slice().sort((a: any, b: any) => a.date.localeCompare(b.date))
+  const timeline: any[] = Array.isArray(entry.timeline) ? [...entry.timeline].sort((a: any, b: any) => (a.date ?? '').localeCompare(b.date ?? '')) : []
   const sources: any[] = entry.sources ?? []
   const completude: number = entry.completude ?? 0
 
